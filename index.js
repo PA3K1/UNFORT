@@ -1,3 +1,5 @@
+
+/*js для header и модалки */
 const burger = document.querySelector('.header__burger');
 const menu = document.querySelector('.header__menu');
 const closeBtn = document.querySelector('.header__menu-close');
@@ -28,5 +30,39 @@ document.addEventListener('keydown', (e) => {
         closeMenu();
     }
 });
+/*----------------------КОНЕЦ----------------*/
 
-// ❌ Клик по оверлею больше не закрывает меню (убрали обработчик)
+/*JS ДЛЯ ОСНОВНОЙ СЕКЦИИ С КАРТОЧКАМИ*/
+// Переключение категорий и фильтрация товаров
+const categoryTabs = document.querySelectorAll('.category-tab');
+const productCards = document.querySelectorAll('.product-card'); // все карточки
+
+// Функция фильтрации
+function filterProducts(category) {
+    productCards.forEach(card => {
+        const cardCategory = card.dataset.category;
+        if (category === 'all' || cardCategory === category) {
+            card.style.display = 'block'; // или flex, если нужно
+        } else {
+            card.style.display = 'none';
+        }
+    });
+}
+
+// Обработчик клика на вкладки
+categoryTabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+        // Убираем класс active у всех вкладок
+        categoryTabs.forEach(t => t.classList.remove('active'));
+        // Добавляем класс active текущей вкладке
+        tab.classList.add('active');
+
+        // Получаем выбранную категорию
+        const category = tab.dataset.category;
+        // Фильтруем товары
+        filterProducts(category);
+    });
+});
+
+// Инициализация: показываем все товары (категория 'all')
+filterProducts('all');

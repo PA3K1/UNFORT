@@ -1,0 +1,64 @@
+@media (max-width: 450px) {
+    /* ----- ШАПКА ----- */
+    .header__container {
+        flex-wrap: wrap;                /* разрешаем перенос элементов */
+        padding: 10px 10px;
+    }
+
+    /* Логотип — переносим на верхнюю строку */
+    .header__logo {
+        order: -1;                      /* ставим первым в контейнере */
+        width: 100%;                    /* занимает всю ширину */
+        text-align: center;              /* центрируем текст */
+        transform: translateX(0);         /* убираем прежний сдвиг */
+        margin: 0 0 8px 0;               /* отступ снизу */
+        font-size: 32px;                 /* можно уменьшить */
+    }
+
+    /* Бургер */
+    .header__burger {
+        margin-right: 8px;
+        width: 26px;
+        height: 18px;
+    }
+
+    /* Навигационные ссылки (Каталог, Коллекции) */
+    .header__nav-link {
+        margin-right: 12px;
+        font-size: 14px;
+    }
+
+    /* Иконки */
+    .header__icon {
+        margin-left: 8px;
+    }
+    .header__icon img {
+        width: 22px;
+    }
+
+    /* ----- ПАНЕЛЬ КАТЕГОРИЙ ----- */
+    .category-tabs-wrapper {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        padding-bottom: 5px;
+        justify-content: flex-start;   /* ← прижимаем табы к левому краю */
+        padding-left: 10px;             /* ← небольшой отступ слева для ALL */
+        box-sizing: border-box;
+    }
+
+    .category-tabs {
+        flex-wrap: nowrap;
+        justify-content: flex-start;
+        width: max-content;
+        gap: 55px;
+        margin: 15px 10px 15px 0;      /* левый margin убираем, он теперь через padding-wrapper */
+        border-bottom: 1px solid #000000;
+        max-width: none;
+    }
+
+    .category-tab {
+        white-space: nowrap;
+        font-size: 11px;
+        padding: 6px 0;
+    }
+}

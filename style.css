@@ -1,3 +1,10 @@
+body{
+    font-family: 'Kinetika';
+}
+
+
+/*СТИЛИ ДЛЯ HEADER*/
+
 .header {
     background: #fff;
     box-shadow: 0 2px 5px rgba(0,0,0,0.1);
@@ -9,13 +16,13 @@
 .header__container {
     display: flex;
     align-items: center;
-    justify-content: space-between; /* левая группа прижата к левому краю, правая — к правому */
+    justify-content: space-between; 
     max-width: 1200px;
     margin: 0 auto;
     padding: 10px 20px;
 }
 
-/* Бургер */
+
 .header__burger {
     display: flex;
     flex-direction: column;
@@ -26,7 +33,7 @@
     border: none;
     cursor: pointer;
     padding: 0;
-    margin-right: 30px; /* отступ от бургера до первой ссылки (подбери под свой вкус) */
+    margin-right: 30px;
 }
 
 .header__burger-line {
@@ -36,48 +43,48 @@
     border-radius: 3px;
 }
 
-/* Навигационные ссылки */
+
 .header__nav-link {
     text-decoration: none;
     color: black;
     font-weight: 400;
     font-size: 18px;
-    margin-right: 30px; /* расстояние между ссылками */
+    margin-right: 30px;
 }
 
-/* Убираем отступ у последней ссылки перед логотипом */
+
 .header__nav-link:last-of-type {
     margin-right: 0;
 }
 
-/* Логотип */
+
 .header__logo {
     font-family: 'Montserrat', sans-serif;
     text-decoration: none;
     color: black;
     font-size: 40px;
     font-weight: 600;
-    line-height: 0.8;        /* сплющивание по вертикали */
-    transform: translateX(-80px); /* сдвиг влево для баланса с иконками */
-    margin-left: auto;        /* эти два свойства заставляют логотип */
-    margin-right: auto;       /* встать ровно по центру */
-    white-space: nowrap;      /* предотвращаем перенос текста */
+    line-height: 0.8; 
+    transform: translateX(-80px);
+    margin-left: auto;    
+    margin-right: auto;
+    white-space: nowrap;
 }
 
-/* Иконки */
+
 .header__icon {
-    margin-left: 20px; /* отступ между иконками */
+    margin-left: 20px;
     display: flex;
     align-items: center;
 }
 
 .header__icon img {
-    display: block; /* убирает лишние отступы под картинкой */
+    display: block;
     width: 30px;
     height: auto;
 }
 
-/* Убираем отступ у первой иконки (она примыкает к логотипу) */
+
 .header__icon:first-of-type {
     margin-left: 0;
 }
@@ -88,7 +95,7 @@
     left: 0;
     width: 260px;
     height: 100vh;
-    background-color: #fff;        /* белый фон */
+    background-color: #fff;     
     z-index: 200;
     display: flex;
     flex-direction: column;
@@ -96,7 +103,6 @@
     transition: transform 0.3s ease-in-out;
 }
 
-/* Остальные стили без изменений */
 
 .header__menu--open {
     transform: translateX(0);
@@ -121,10 +127,15 @@
 
 .header__menu-link {
     text-decoration: none;
-    font-size: 15px;
+    font-size: 16px;
     color: #000000;
     font-family: 'Kinetika';
     font-weight: 520;
+    transition: color 0.3s ease;
+}
+
+.header__menu-link:hover {
+    color: #808080;
 }
 
 .overlay {
@@ -144,3 +155,63 @@
     opacity: 1;
     visibility: visible;
 }
+
+/*СТИЛИ ДЛЯ MAIN SECTION*/
+
+
+
+.category-tabs-wrapper{
+    display: flex;
+    justify-content: center;
+
+}
+
+.category-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 70px;
+    margin: 40px 0 30px;
+    position: relative;
+    border-bottom: 1px solid #000000; /* ← общая серая полоса */
+    /* padding-bottom не нужен, чтобы полоса была сразу под текстом */
+}
+
+.category-tab {
+    background: none;
+    border: none;
+    font-size: 12px;
+    color: #000000;
+    font-family: 'Kinetika';
+    font-weight: 400;
+    text-transform: uppercase;
+    padding: 8px 0;
+    cursor: pointer;
+    position: relative; /* нужно для позиционирования псевдоэлемента */
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    transition: color 0.2s;
+}
+
+.category-tab:hover {
+    color: #000000;
+}
+
+.category-tab.active {
+    color: #777;
+}
+
+/* Белая полоса для активного таба, перекрывающая общую */
+.category-tab.active::after {
+    content: '';
+    position: absolute;
+    bottom: -2px; /* опускаем ровно на уровень общей полосы */
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background-color: #fff; /* цвет фона страницы (должен совпадать с фоном body) */
+    z-index: 2;
+}
+
+
+
