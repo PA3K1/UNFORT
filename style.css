@@ -215,13 +215,13 @@ body{
 .products {
     max-width: 1200px;
     margin: 0 auto;
-    padding: 0 20px 40px;
+    padding: 0 20px 0.1px;
 }
 
 .products__grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: 20px;
+    gap: 1px;
 }
 
 /* Карточка товара */
@@ -232,6 +232,7 @@ body{
     border-radius: 0;
     transition: transform 0.2s;
     margin: 0 auto;             /* центрирование внутри колонки */
+    border: 1px solid #a8a8a8;
 }
 
 
@@ -521,15 +522,9 @@ body{
     color: #ff4d4f;
 }
 
-/* Адаптив для мобильных */
-@media (max-width: 600px) {
-    .favorite-modal {
-        width: 100%;
-        right: -100%;
-    }
-    .favorite-modal__inner {
-        width: auto;
-        padding: 20px;
-        height: calc(100vh - 40px);
-    }
+.sticked-low {
+    position: fixed;
+    left: 1566.5px;
+    top: 825px;
+    z-index: 9999;
 }

@@ -83,3 +83,16 @@
         max-width: 100%;
     }
 }
+
+/* Адаптив для мобильных */
+@media (max-width: 600px) {
+    .favorite-modal {
+        width: 100%;
+        right: -100%;
+    }
+    .favorite-modal__inner {
+        width: auto;
+        padding: 20px;
+        height: calc(100vh - 40px);
+    }
+}
