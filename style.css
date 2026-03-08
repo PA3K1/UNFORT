@@ -295,9 +295,7 @@ body{
     margin-right: 2px;
 }
 
-.product-card__favorite:active svg {
-    fill: #ff4d4f;
-}
+
 
 .product-card__badge {
     font-family: 'Kinetika';
@@ -355,7 +353,7 @@ body{
     text-decoration: line-through;
 }
 
-/* Информация об оплате долями */
+
 .product-card__installment {
     font-size: 14px;
     color: #666;
@@ -364,4 +362,174 @@ body{
 }
 
 
+.header__icon--favorite {
+    position: relative;
+    transition: transform 0.2s ease; /* плавность */
+}
 
+.header__icon--favorite.heart-pop {
+    transform: scale(1.15); /* увеличение примерно на 2px при исходном размере 30px */
+}
+
+.header__favorite-count {
+    position: absolute;
+    top: 15px;
+    right: 25px;
+    color: rgb(0, 0, 0);
+    font-family: 'Kinetika';
+    font-size: 13px;
+    font-weight: 550;
+    min-width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 2px;
+    box-sizing: border-box;
+}
+
+.product-card__favorite.active svg {
+    fill: #ff4d4f;
+    stroke: #ff4d4f;
+}
+
+/* ----- СТИЛИ ДЛЯ МОДАЛЬНОГО ОКНА ИЗБРАННОГО ----- */
+.favorite-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 250;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s, visibility 0.3s;
+}
+
+.favorite-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.favorite-modal {
+    position: fixed;
+    top: 0;
+    right: -560px;
+    width: 560px;
+    height: 100vh;
+    background-color: #fff;
+    z-index: 300;
+    transition: right 0.3s ease-in-out;
+    box-shadow: -5px 0 15px rgba(0,0,0,0.1);
+}
+
+.favorite-modal.active {
+    right: 0;
+}
+
+.favorite-modal__inner {
+    padding: 40px;
+    width: 480px;        /* внутренняя ширина */
+    height: 880px;        /* внутренняя высота */
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+}
+
+.favorite-modal__close {
+    position: absolute;
+    top: 40px;
+    right: 40px;
+    font-size: 40px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    line-height: 1;
+    color: #333;
+}
+
+.favorite-modal__title {
+    font-family: 'Kinetika', sans-serif;
+    font-size: 24px;
+    font-weight: 600;
+    margin: 0 0 20px 0;
+    text-align: left;
+}
+
+.favorite-modal__items {
+    flex: 1;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+/* Карточка товара внутри модалки */
+.favorite-item {
+    display: flex;
+    gap: 15px;
+    align-items: flex-start;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 15px;
+}
+
+.favorite-item__image {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+}
+
+.favorite-item__info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.favorite-item__title {
+    font-size: 14px;
+    font-weight: 500;
+    color: #000;
+    margin: 0;
+}
+
+.favorite-item__size {
+    font-size: 12px;
+    color: #666;
+}
+
+.favorite-item__price {
+    font-size: 14px;
+    font-weight: 600;
+    color: #000;
+}
+
+.favorite-item__remove {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 24px;
+    line-height: 1;
+    color: #999;
+    align-self: center;
+}
+
+.favorite-item__remove:hover {
+    color: #ff4d4f;
+}
+
+/* Адаптив для мобильных */
+@media (max-width: 600px) {
+    .favorite-modal {
+        width: 100%;
+        right: -100%;
+    }
+    .favorite-modal__inner {
+        width: auto;
+        padding: 20px;
+        height: calc(100vh - 40px);
+    }
+}

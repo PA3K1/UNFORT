@@ -66,3 +66,137 @@ categoryTabs.forEach(tab => {
 
 // Инициализация: показываем все товары (категория 'all')
 filterProducts('all');
+
+
+
+
+
+
+/*js для картчек добавлениее в избранное */
+let favorites = [];
+
+const favoriteCount = document.querySelector('.header__favorite-count');
+
+
+function updateFavoriteCount() {
+    favoriteCount.textContent = favorites.length;
+}
+
+// Обработчик клика на сердечки
+document.querySelectorAll('.product-card__favorite').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        const card = btn.closest('.product-card');
+        const productId = card.dataset.productId;
+        if (!productId) return;
+        toggleFavorite(productId, btn);
+    });
+});
+
+// Инициализация счетчика (может быть 0)
+updateFavoriteCount();
+
+
+
+// ---------- JS ДЛЯ РАБОТЫ ИЗБРОННОГО  ----------
+const productsData = {};
+document.querySelectorAll('.product-card').forEach(card => {
+    const id = card.dataset.productId;
+    if (id) {
+        const title = card.querySelector('.product-card__title').textContent;
+        const priceNew = card.querySelector('.product-card__price--new').textContent;
+        const imgSrc = card.querySelector('.product-card__image--primary').src;
+        productsData[id] = {
+            title,
+            price: priceNew,
+            img: imgSrc,
+        };
+    }
+});
+
+// ---------- ОБЩАЯ ФУНКЦИЯ ПЕРЕКЛЮЧЕНИЯ ИЗБРАННОГО ----------
+function toggleFavorite(productId, btn) {
+    if (favorites.includes(productId)) {
+        favorites = favorites.filter(id => id !== productId);
+        if (btn) btn.classList.remove('active');
+    } else {
+        favorites.push(productId);
+        if (btn) btn.classList.add('active');
+    }
+    updateFavoriteCount();
+    animateHeart();
+    // Если модалка открыта – обновляем её содержимое
+    if (favoriteModal.classList.contains('active')) {
+        renderFavoritesModal();
+    }
+}
+
+// ---------- МОДАЛЬНОЕ ОКНО ----------
+const favoriteOverlay = document.getElementById('favoriteOverlay');
+const favoriteModal = document.getElementById('favoriteModal');
+const favoriteClose = document.querySelector('.favorite-modal__close');
+const favoriteItemsContainer = document.querySelector('.favorite-modal__items');
+
+function openFavorites() {
+    renderFavoritesModal();
+    favoriteOverlay.classList.add('active');
+    favoriteModal.classList.add('active');
+}
+
+function closeFavorites() {
+    favoriteOverlay.classList.remove('active');
+    favoriteModal.classList.remove('active');
+}
+
+function animateHeart() {
+    const heartIcon = document.querySelector('.header__icon--favorite');
+    if (!heartIcon) return;
+    heartIcon.classList.add('heart-pop');
+    setTimeout(() => {
+        heartIcon.classList.remove('heart-pop');
+    }, 500); // длительность анимации 0.5 с
+}
+
+function renderFavoritesModal() {
+    favoriteItemsContainer.innerHTML = '';
+    if (favorites.length === 0) {
+        favoriteItemsContainer.innerHTML = '<p>В избранном пока нет товаров</p>';
+        return;
+    }
+    favorites.forEach(id => {
+        const item = productsData[id];
+        if (!item) return;
+        const itemEl = document.createElement('div');
+        itemEl.className = 'favorite-item';
+        itemEl.innerHTML = `
+            <img src="${item.img}" alt="${item.title}" class="favorite-item__image">
+            <div class="favorite-item__info">
+                <h4 class="favorite-item__title">${item.title}</h4>
+                <span class="favorite-item__size">One size</span> <!-- заглушка, можно заменить -->
+                <span class="favorite-item__price">${item.price}</span>
+            </div>
+            <button class="favorite-item__remove" data-product-id="${id}">&times;</button>
+        `;
+        favoriteItemsContainer.appendChild(itemEl);
+    });
+
+    // Обработчики удаления внутри модалки
+    document.querySelectorAll('.favorite-item__remove').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const productId = btn.dataset.productId;
+            const cardBtn = document.querySelector(`.product-card[data-product-id="${productId}"] .product-card__favorite`);
+            toggleFavorite(productId, cardBtn);
+        });
+    });
+}
+
+// ---------- ОТКРЫТИЕ ПО КЛИКУ НА СЕРДЦЕ В ШАПКЕ ----------
+document.querySelector('.header__icon--favorite').addEventListener('click', (e) => {
+    e.preventDefault();
+    openFavorites();
+});
+
+// ---------- ЗАКРЫТИЕ ПО КРЕСТИКУ ----------
+favoriteClose.addEventListener('click', closeFavorites);
