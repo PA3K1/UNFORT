@@ -1,7 +1,11 @@
-body{
-    font-family: 'Kinetika';
-}
 
+html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    overflow-x: hidden; /* чтобы не было горизонтального скролла */
+        font-family: 'Kinetika';
+}
 
 /*СТИЛИ ДЛЯ HEADER*/
 
@@ -585,4 +589,148 @@ body{
 /* Скрываем пагинацию, когда она не нужна */
 .pagination.hidden {
     display: none;
+}
+
+
+
+
+/* ----- ОСНОВНЫЕ СТИЛИ ФУТЕРА ----- */
+.footer {
+    font-family: 'Kinetika', sans-serif;
+    width: 100%; /* вместо 1920px */
+    background-color: #0f0f0f;
+    margin: 0;
+    padding: 0;
+}
+
+/* Верхняя часть футера */
+.footer__top {
+    background-color: #0f0f0f;
+    color: #fff;
+    padding: 30px 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 60px;
+}
+
+/* Общие стили для групп (переопределяем дефолтные) */
+.footer__group {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+/* Левая группа: ссылки в ряд */
+.footer__group--left {
+    display: flex;
+    gap: 15px;
+    align-items: flex-start;
+    flex-direction: column;
+}
+
+/* Правая группа: ссылки в ряд */
+.footer__group--right {
+    display: flex;
+    gap: 15px;
+    align-items: flex-start;
+    flex-direction: column;
+}
+
+/* Центральная группа: почта и соцсети вертикально */
+.footer__group--center {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    margin: 0px 160px 0px 100px;
+}
+
+/* Стили ссылок */
+.footer__link {
+    color: #6d6d6d;
+    text-decoration: none;
+    font-size: 14px;
+    transition: color 0.2s;
+    white-space: nowrap;
+}
+
+.footer__link:hover {
+    color: #58585809;
+}
+
+/* Почта */
+.footer__email {
+    color: #6d6d6d;
+    text-decoration: none;
+    font-size: 14px;
+    transition: color 0.2s;
+}
+
+.footer__email:hover {
+    color: inherit;
+}
+
+/* Блок соцсетей */
+.footer__socials {
+    display: flex;
+    gap: 10px;
+}
+
+.footer__social {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    background-color: #333;
+    border-radius: 50%;
+    transition: background-color 0.2s;
+}
+
+.footer__social:hover {
+    background-color: #555;
+}
+
+.footer__social img {
+    width: 40px;
+    height: 40px;
+    filter: brightness(0) invert(1);
+}
+
+/* Бренд "UNFORT" */
+.footer__brand {
+    font-size: 45px;
+    font-weight: 400;
+    letter-spacing: 1px;
+    white-space: nowrap;
+    padding: 8px 12px;
+    line-height: 1;
+    color: #6d6d6d;
+}
+
+/* Нижняя часть футера */
+.footer__bottom {
+    background-color: #000;
+    color: #8d8d8d8a;
+    width: 100%;
+    height: 70px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: Arial, sans-serif;
+    font-size: 14px;
+}
+
+.footer__made {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin: 0; 
+    font-size: 17px;
+}
+
+.footer__tilda-logo {
+    height: 20px;
+    width: auto;
 }

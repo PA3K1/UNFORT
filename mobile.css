@@ -96,3 +96,36 @@
         height: calc(100vh - 40px);
     }
 }
+
+/* ========== АДАПТИВНОСТЬ ========== */
+@media (max-width: 992px) {
+    .footer__top {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+
+    .footer__group--left,
+    .footer__group--right {
+        justify-content: center;
+    }
+
+    .footer__group--center {
+        order: 1; /* можно менять порядок при необходимости */
+    }
+
+    .footer__brand {
+        order: 2;
+    }
+}
+
+@media (max-width: 600px) {
+    .footer__group {
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .footer__socials {
+        justify-content: center;
+    }
+}
