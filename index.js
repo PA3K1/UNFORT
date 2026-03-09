@@ -1,158 +1,186 @@
+/* ========== ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ ========== */
+let favorites = JSON.parse(localStorage.getItem('favorites')) || [];
 
-/*js для header и модалки */
-const burger = document.querySelector('.header__burger');
-const menu = document.querySelector('.header__menu');
-const closeBtn = document.querySelector('.header__menu-close');
-const overlay = document.querySelector('.overlay');
-
-function closeMenu() {
-    menu.classList.remove('header__menu--open');
-    overlay.classList.remove('active');
-}
-
-// Открытие меню
-burger.addEventListener('click', () => {
-    menu.classList.add('header__menu--open');
-    overlay.classList.add('active');
-});
-
-// Закрытие по крестику
-closeBtn.addEventListener('click', closeMenu);
-
-// Закрытие при клике на ссылки внутри меню
-document.querySelectorAll('.header__menu-link').forEach(link => {
-    link.addEventListener('click', closeMenu);
-});
-
-// Закрытие по Esc
-document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && menu.classList.contains('header__menu--open')) {
-        closeMenu();
-    }
-});
-/*----------------------КОНЕЦ----------------*/
-
-/*JS ДЛЯ ОСНОВНОЙ СЕКЦИИ С КАРТОЧКАМИ*/
-// Переключение категорий и фильтрация товаров
+// Элементы
+const favoriteCount = document.querySelector('.header__favorite-count');
+const favoriteOverlay = document.getElementById('favoriteOverlay');
+const favoriteModal = document.getElementById('favoriteModal');
+const favoriteClose = document.querySelector('.favorite-modal__close');
+const favoriteItemsContainer = document.querySelector('.favorite-modal__items');
 const categoryTabs = document.querySelectorAll('.category-tab');
-const productCards = document.querySelectorAll('.product-card'); // все карточки
+const productsGrid = document.getElementById('products-grid');
+const pagination = document.getElementById('pagination');
+const prevPageBtn = document.getElementById('prevPage');
+const nextPageBtn = document.getElementById('nextPage');
+const pageButtons = document.querySelectorAll('.pagination__page');
 
-// Функция фильтрации
-function filterProducts(category) {
-    productCards.forEach(card => {
-        const cardCategory = card.dataset.category;
-        if (category === 'all' || cardCategory === category) {
-            card.style.display = 'block'; // или flex, если нужно
-        } else {
-            card.style.display = 'none';
+// Объект для быстрого доступа к товарам по id
+const productsMap = {};
+products.forEach(p => { productsMap[p.id] = p; });
+
+// Переменные для пагинации
+const ITEMS_PER_PAGE = 36; // 9 рядов по 4 товара
+let currentPage = 1;
+let totalPages = Math.ceil(products.length / ITEMS_PER_PAGE); // для ALL
+
+/* ========== ФУНКЦИИ РЕНДЕРА ========== */
+function renderProducts(productsArray) {
+    productsGrid.innerHTML = '';
+    productsArray.forEach(product => {
+        const card = document.createElement('article');
+        card.className = 'product-card';
+        card.dataset.productId = product.id;
+        card.dataset.category = product.category;
+
+        card.innerHTML = `
+            <a href="#" class="product-card__link">
+                <div class="product-card__image-wrapper">
+                    <img src="${product.imgPrimary}" alt="${product.title}" class="product-card__image product-card__image--primary">
+                    <img src="${product.imgSecondary}" alt="${product.title} hover" class="product-card__image product-card__image--secondary">
+                    <button class="product-card__favorite" aria-label="Добавить в избранное">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                        </svg>
+                    </button>
+                    ${product.badge ? `<span class="product-card__badge">${product.badge}</span>` : ''}
+                </div>
+                <h3 class="product-card__title">${product.title}</h3>
+                <div class="product-card__prices">
+                    <span class="product-card__price product-card__price--new">${product.priceNew}</span>
+                    ${product.priceOld ? `<span class="product-card__price product-card__price--old">${product.priceOld}</span>` : ''}
+                </div>
+                <div class="product-card__installment">Долями по ${product.installment}</div>
+            </a>
+        `;
+
+        if (favorites.includes(product.id)) {
+            const favBtn = card.querySelector('.product-card__favorite');
+            favBtn.classList.add('active');
         }
+
+        productsGrid.appendChild(card);
     });
+
+    initFavoriteButtons();
 }
 
-// Обработчик клика на вкладки
+// Рендер для ALL с пагинацией
+function renderAllPage(page) {
+    const start = (page - 1) * ITEMS_PER_PAGE;
+    const end = start + ITEMS_PER_PAGE;
+    const pageProducts = products.slice(start, end);
+    renderProducts(pageProducts);
+
+    currentPage = page;
+    updatePagination();
+    pagination.classList.remove('hidden');
+
+    // Прокрутка к началу списка товаров
+    productsGrid.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+// Рендер для остальных категорий (без пагинации)
+function renderCategory(category) {
+    const filtered = products.filter(p => p.category === category);
+    renderProducts(filtered);
+    pagination.classList.add('hidden');
+    productsGrid.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+/* ========== ФИЛЬТРАЦИЯ ПО КАТЕГОРИЯМ ========== */
+function filterProducts(category) {
+    if (category === 'all') {
+        renderAllPage(1); // всегда начинаем с первой страницы
+    } else {
+        renderCategory(category);
+    }
+}
+
+// Обработчики вкладок
 categoryTabs.forEach(tab => {
     tab.addEventListener('click', () => {
-        // Убираем класс active у всех вкладок
         categoryTabs.forEach(t => t.classList.remove('active'));
-        // Добавляем класс active текущей вкладке
         tab.classList.add('active');
-
-        // Получаем выбранную категорию
         const category = tab.dataset.category;
-        // Фильтруем товары
         filterProducts(category);
     });
 });
 
-// Инициализация: показываем все товары (категория 'all')
+// Инициализация: показываем ALL
 filterProducts('all');
 
+/* ========== ПАГИНАЦИЯ ========== */
+function updatePagination() {
+    // Обновляем активную страницу
+    pageButtons.forEach(btn => {
+        const page = parseInt(btn.dataset.page);
+        if (page === currentPage) {
+            btn.classList.add('active');
+        } else {
+            btn.classList.remove('active');
+        }
+    });
 
-
-
-
-
-/*js для картчек добавлениее в избранное */
-let favorites = [];
-
-const favoriteCount = document.querySelector('.header__favorite-count');
-
-
-function updateFavoriteCount() {
-    favoriteCount.textContent = favorites.length;
+    // Блокируем/разблокируем стрелки
+    prevPageBtn.disabled = currentPage === 1;
+    nextPageBtn.disabled = currentPage === totalPages;
 }
 
-// Обработчик клика на сердечки
-document.querySelectorAll('.product-card__favorite').forEach(btn => {
-    btn.addEventListener('click', (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        const card = btn.closest('.product-card');
-        const productId = card.dataset.productId;
-        if (!productId) return;
-        toggleFavorite(productId, btn);
+// Обработчики кнопок страниц
+pageButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+        const page = parseInt(btn.dataset.page);
+        if (page !== currentPage) {
+            renderAllPage(page);
+        }
     });
 });
 
-// Инициализация счетчика (может быть 0)
-updateFavoriteCount();
-
-
-
-// ---------- JS ДЛЯ РАБОТЫ ИЗБРОННОГО  ----------
-const productsData = {};
-document.querySelectorAll('.product-card').forEach(card => {
-    const id = card.dataset.productId;
-    if (id) {
-        const title = card.querySelector('.product-card__title').textContent;
-        const priceNew = card.querySelector('.product-card__price--new').textContent;
-        const imgSrc = card.querySelector('.product-card__image--primary').src;
-        productsData[id] = {
-            title,
-            price: priceNew,
-            img: imgSrc,
-        };
+// Обработчики стрелок
+prevPageBtn.addEventListener('click', () => {
+    if (currentPage > 1) {
+        renderAllPage(currentPage - 1);
     }
 });
 
-// ---------- ОБЩАЯ ФУНКЦИЯ ПЕРЕКЛЮЧЕНИЯ ИЗБРАННОГО ----------
+nextPageBtn.addEventListener('click', () => {
+    if (currentPage < totalPages) {
+        renderAllPage(currentPage + 1);
+    }
+});
+
+/* ========== ИЗБРАННОЕ ========== */
+function updateFavoriteCount() {
+    favoriteCount.textContent = favorites.length;
+    localStorage.setItem('favorites', JSON.stringify(favorites));
+}
+
 function toggleFavorite(productId, btn) {
     if (favorites.includes(productId)) {
         favorites = favorites.filter(id => id !== productId);
-        if (btn) btn.classList.remove('active');
+        btn.classList.remove('active');
     } else {
         favorites.push(productId);
-        if (btn) btn.classList.add('active');
+        btn.classList.add('active');
     }
     updateFavoriteCount();
     animateHeart();
-    // Если модалка открыта – обновляем её содержимое
     if (favoriteModal.classList.contains('active')) {
         renderFavoritesModal();
     }
 }
 
-// ---------- МОДАЛЬНОЕ ОКНО ----------
-const favoriteOverlay = document.getElementById('favoriteOverlay');
-const favoriteModal = document.getElementById('favoriteModal');
-const favoriteClose = document.querySelector('.favorite-modal__close');
-const favoriteItemsContainer = document.querySelector('.favorite-modal__items');
-
-function openFavorites() {
-    renderFavoritesModal();
-    favoriteOverlay.classList.add('active');
-    favoriteModal.classList.add('active');
-    // Скрываем стики-кнопку
-    const sticked = document.querySelector('.sticked-low');
-    if (sticked) sticked.style.display = 'none';
-}
-
-function closeFavorites() {
-    favoriteOverlay.classList.remove('active');
-    favoriteModal.classList.remove('active');
-    // Показываем стики-кнопку обратно
-    const sticked = document.querySelector('.sticked-low');
-    if (sticked) sticked.style.display = '';
+function initFavoriteButtons() {
+    document.querySelectorAll('.product-card__favorite').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            const card = btn.closest('.product-card');
+            const productId = card.dataset.productId;
+            if (!productId) return;
+            toggleFavorite(productId, btn);
+        });
+    });
 }
 
 function animateHeart() {
@@ -161,9 +189,10 @@ function animateHeart() {
     heartIcon.classList.add('heart-pop');
     setTimeout(() => {
         heartIcon.classList.remove('heart-pop');
-    }, 500); // длительность анимации 0.5 с
+    }, 500);
 }
 
+/* ========== МОДАЛЬНОЕ ОКНО ИЗБРАННОГО ========== */
 function renderFavoritesModal() {
     favoriteItemsContainer.innerHTML = '';
     if (favorites.length === 0) {
@@ -171,23 +200,22 @@ function renderFavoritesModal() {
         return;
     }
     favorites.forEach(id => {
-        const item = productsData[id];
+        const item = productsMap[id];
         if (!item) return;
         const itemEl = document.createElement('div');
         itemEl.className = 'favorite-item';
         itemEl.innerHTML = `
-            <img src="${item.img}" alt="${item.title}" class="favorite-item__image">
+            <img src="${item.imgPrimary}" alt="${item.title}" class="favorite-item__image">
             <div class="favorite-item__info">
                 <h4 class="favorite-item__title">${item.title}</h4>
-                <span class="favorite-item__size">One size</span> <!-- заглушка, можно заменить -->
-                <span class="favorite-item__price">${item.price}</span>
+                <span class="favorite-item__size">One size</span>
+                <span class="favorite-item__price">${item.priceNew}</span>
             </div>
             <button class="favorite-item__remove" data-product-id="${id}">&times;</button>
         `;
         favoriteItemsContainer.appendChild(itemEl);
     });
 
-    // Обработчики удаления внутри модалки
     document.querySelectorAll('.favorite-item__remove').forEach(btn => {
         btn.addEventListener('click', (e) => {
             e.stopPropagation();
@@ -198,11 +226,54 @@ function renderFavoritesModal() {
     });
 }
 
-// ---------- ОТКРЫТИЕ ПО КЛИКУ НА СЕРДЦЕ В ШАПКЕ ----------
+function openFavorites() {
+    renderFavoritesModal();
+    favoriteOverlay.classList.add('active');
+    favoriteModal.classList.add('active');
+    const sticked = document.querySelector('.sticked-low');
+    if (sticked) sticked.style.display = 'none';
+}
+
+function closeFavorites() {
+    favoriteOverlay.classList.remove('active');
+    favoriteModal.classList.remove('active');
+    const sticked = document.querySelector('.sticked-low');
+    if (sticked) sticked.style.display = '';
+}
+
 document.querySelector('.header__icon--favorite').addEventListener('click', (e) => {
     e.preventDefault();
     openFavorites();
 });
 
-// ---------- ЗАКРЫТИЕ ПО КРЕСТИКУ ----------
 favoriteClose.addEventListener('click', closeFavorites);
+
+updateFavoriteCount();
+
+/* ========== КОД ДЛЯ БУРГЕРА И МОДАЛОК (без изменений) ========== */
+const burger = document.querySelector('.header__burger');
+const menu = document.querySelector('.header__menu');
+const closeBtn = document.querySelector('.header__menu-close');
+const overlay = document.querySelector('.overlay');
+
+function closeMenu() {
+    menu.classList.remove('header__menu--open');
+    overlay.classList.remove('active');
+}
+
+burger.addEventListener('click', () => {
+    menu.classList.add('header__menu--open');
+    overlay.classList.add('active');
+});
+
+closeBtn.addEventListener('click', closeMenu);
+
+document.querySelectorAll('.header__menu-link').forEach(link => {
+    link.addEventListener('click', closeMenu);
+});
+
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && menu.classList.contains('header__menu--open')) {
+        closeMenu();
+    }
+});

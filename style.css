@@ -530,3 +530,59 @@ body{
     z-index: 9999;
 }
 
+/* ДЛЯ ПЕРЕХОДА МЕЖДУ ОТДЕЛАМИ */
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+    margin: 40px 0;
+}
+
+.pagination__pages {
+    display: flex;
+    gap: 10px;
+}
+
+.pagination__page {
+    width: 40px;
+    height: 40px;
+    border: 1px solid #ddd;
+    background: #fff;
+    font-size: 18px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.pagination__page:hover {
+    background: #f0f0f0;
+}
+
+.pagination__page.active {
+    color: #000000;
+    border-color: #000;
+}
+
+.pagination__arrow {
+    width: 40px;
+    height: 40px;
+    border: 1px solid #ddd;
+    background: #fff;
+    font-size: 20px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.pagination__arrow:hover:not(:disabled) {
+    background: #f0f0f0;
+}
+
+.pagination__arrow:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+}
+
+/* Скрываем пагинацию, когда она не нужна */
+.pagination.hidden {
+    display: none;
+}
