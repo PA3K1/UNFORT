@@ -142,11 +142,17 @@ function openFavorites() {
     renderFavoritesModal();
     favoriteOverlay.classList.add('active');
     favoriteModal.classList.add('active');
+    // Скрываем стики-кнопку
+    const sticked = document.querySelector('.sticked-low');
+    if (sticked) sticked.style.display = 'none';
 }
 
 function closeFavorites() {
     favoriteOverlay.classList.remove('active');
     favoriteModal.classList.remove('active');
+    // Показываем стики-кнопку обратно
+    const sticked = document.querySelector('.sticked-low');
+    if (sticked) sticked.style.display = '';
 }
 
 function animateHeart() {

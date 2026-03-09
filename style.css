@@ -523,8 +523,10 @@ body{
 }
 
 .sticked-low {
+    display: block; /* явно указываем display, чтобы при возврате было понятно */
     position: fixed;
     left: 1566.5px;
     top: 825px;
     z-index: 9999;
 }
+
