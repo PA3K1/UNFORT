@@ -156,12 +156,16 @@ function updateFavoriteCount() {
 }
 
 function toggleFavorite(productId, btn) {
-    if (favorites.includes(productId)) {
+    const wasFavorite = favorites.includes(productId);
+
+    if (wasFavorite) {
         favorites = favorites.filter(id => id !== productId);
-        btn.classList.remove('active');
+        if (btn) btn.classList.remove('active'); // проверяем, что кнопка существует
     } else {
         favorites.push(productId);
-        btn.classList.add('active');
+        if (btn) btn.classList.add('active');
+        const product = productsMap[productId];
+        if (product) showToast(`${product.title} добавлено в избранное`);
     }
     updateFavoriteCount();
     animateHeart();
@@ -190,6 +194,34 @@ function animateHeart() {
     setTimeout(() => {
         heartIcon.classList.remove('heart-pop');
     }, 500);
+}
+
+/* ========== ТОСТ-УВЕДОМЛЕНИЕ ========== */
+function showToast(message) {
+    // Удаляем предыдущий тост, если он есть
+    const existingToast = document.querySelector('.toast');
+    if (existingToast) {
+        existingToast.remove();
+    }
+
+    // Создаём новый элемент
+    const toast = document.createElement('div');
+    toast.className = 'toast';
+    toast.textContent = message;
+    document.body.appendChild(toast);
+
+    // Даём браузеру момент на рендер, затем показываем
+    setTimeout(() => {
+        toast.classList.add('show');
+    }, 10);
+
+    // Через 3 секунды скрываем и удаляем
+    setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => {
+            toast.remove();
+        }, 300); // ждём завершения анимации
+    }, 3000);
 }
 
 /* ========== МОДАЛЬНОЕ ОКНО ИЗБРАННОГО ========== */
@@ -275,5 +307,59 @@ document.querySelectorAll('.header__menu-link').forEach(link => {
 document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape' && menu.classList.contains('header__menu--open')) {
         closeMenu();
+    }
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* ========== МОДАЛЬНОЕ ОКНО ПРИВЕТСТВИЯ ========== */
+const welcomeOverlay = document.getElementById('welcomeOverlay');
+const welcomeModal = document.getElementById('welcomeModal');
+const welcomeClose = document.querySelector('.welcome-modal__close');
+
+// Функция открытия
+function openWelcomeModal() {
+    welcomeOverlay.classList.add('active');
+    welcomeModal.classList.add('active');
+}
+
+// Функция закрытия
+function closeWelcomeModal() {
+    welcomeOverlay.classList.remove('active');
+    welcomeModal.classList.remove('active');
+}
+
+// Открываем при загрузке страницы
+window.addEventListener('load', () => {
+    const hasSeenWelcome = localStorage.getItem('welcomeModalShown');
+    if (!hasSeenWelcome) {
+        openWelcomeModal();
+        localStorage.setItem('welcomeModalShown', 'true');
+    }
+});
+
+// Закрытие по крестику
+if (welcomeClose) {
+    welcomeClose.addEventListener('click', closeWelcomeModal);
+}
+
+// Закрытие по клику на оверлей (по желанию)
+welcomeOverlay.addEventListener('click', closeWelcomeModal);
+
+// Закрытие по Escape
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && welcomeModal.classList.contains('active')) {
+        closeWelcomeModal();
     }
 });

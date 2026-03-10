@@ -1,10 +1,27 @@
-
 html, body {
+    height: 100%;
     margin: 0;
     padding: 0;
     width: 100%;
-    overflow-x: hidden; /* чтобы не было горизонтального скролла */
-        font-family: 'Kinetika';
+    overflow-x: hidden;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+    font-family: 'Kinetika';
+}
+
+.main-content {
+    flex: 1 0 auto; /* занимает всё доступное пространство */
+}
+
+.footer {
+    flex-shrink: 0; /* не сжимается */
+    width: 100%;
+    background-color: #0f0f0f;
+    margin: 0;
+    padding: 0;
 }
 
 /*СТИЛИ ДЛЯ HEADER*/
@@ -249,6 +266,9 @@ html, body {
 
 /* Обёртка изображения (относительное позиционирование для лейблов) */
 .product-card__image-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
     position: relative;
     width: 100%;
     height: auto;
@@ -257,7 +277,7 @@ html, body {
 }
 
 .product-card__image {
-    width: 100%;
+    width: 90%;
     height: 100%;
     object-fit: cover;
     display: block;
@@ -267,7 +287,7 @@ html, body {
 .product-card__image--secondary {
     position: absolute;
     top: 0;
-    left: 0;
+    left: -20;
     opacity: 0;
 }
 
@@ -601,6 +621,7 @@ html, body {
     background-color: #0f0f0f;
     margin: 0;
     padding: 0;
+    margin-top: 80px;
 }
 
 /* Верхняя часть футера */
@@ -733,4 +754,172 @@ html, body {
 .footer__tilda-logo {
     height: 20px;
     width: auto;
+}
+
+
+
+/* ----- СТИЛИ ДЛЯ МОДАЛЬНОГО ОКНА ПРИВЕТСТВИЯ ----- */
+.welcome-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 350; /* выше модалки избранного (у той 300) */
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s, visibility 0.3s;
+}
+
+.welcome-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.welcome-modal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 560px;
+    height: 580px;
+    background-color: #fff;
+    z-index: 351;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s, visibility 0.3s;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+}
+
+.welcome-modal.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.welcome-modal__inner {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    padding: 0; /* внутренние отступы не нужны, так как картинка занимает верх */
+    display: flex;
+    flex-direction: column;
+}
+
+.welcome-modal__close {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    font-size: 30px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    line-height: 1;
+    color: #222;
+    z-index: 10;
+}
+
+.welcome-modal__image {
+    width: 100%;
+    height: 280px; /* фиксированная высота картинки */
+    overflow: hidden;
+}
+
+.welcome-modal__image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* чтобы картинка заполнила область */
+    display: block;
+}
+
+.welcome-modal__title {
+    font-size: 20px;
+    line-height: 14px; /* по твоему описанию */
+    font-weight: 700; /* можно подобрать, но в стилях не указано, оставлю жирным */
+    text-align: center;
+    margin: 25px 0 10px 0;
+    padding: 0 20px;
+    color: #222;
+}
+
+.welcome-modal__description {
+    font-weight: 100;
+    font-family: 'Manrope', sans-serif;
+    font-size: 14px;
+    text-align: center;
+    margin: 0 0 15px 0;
+    padding: 0 20px;
+    color: #222;
+}
+
+.welcome-modal__list {
+    list-style: disc; /* точки слева */
+    padding-left: 40px; /* отступ для точек */
+    margin: 0 20px 20px 20px;
+    font-family: 'Manrope', sans-serif;
+    font-size: 14px;
+    font-weight: 400;
+    color: #222;
+}
+
+.welcome-modal__list li {
+    margin-bottom: 8px;
+}
+
+.welcome-modal__button {
+    display: block;
+    width: calc(100% - 40px);
+    margin: 0 auto;
+    padding: 12px 0;
+    text-align: center;
+    text-decoration: none;
+    color: #222222;
+    border-style: solid;
+    border-color: #222222;
+    border-width: 1px;
+    border-radius: 0px;
+    box-shadow: none;
+    font-family: 'Manrope', sans-serif;
+    font-weight: 400;
+    text-transform: uppercase;
+    transition-duration: 0.2s;
+    transition-property: background-color, color, border-color, box-shadow, opacity, transform, gap;
+    transition-timing-function: ease-in-out;
+    background: transparent;
+    cursor: pointer;
+}
+
+.welcome-modal__button:hover {
+    background-color: #222222;
+    color: #fff;
+}
+
+/* ----- ТОСТ-УВЕДОМЛЕНИЕ ----- */
+.toast {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    width: 350px;
+    height: 78px;
+    background-color: #000;
+    color: #fff;
+    font-family: 'Kinetika', sans-serif;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    opacity: 0;
+    transform: translateX(100%); /* изначально скрыт справа */
+    transition: transform 0.3s ease, opacity 0.3s ease;
+    z-index: 1000;
+    padding: 0 20px;
+    box-sizing: border-box;
+}
+
+.toast.show {
+    opacity: 1;
+    transform: translateX(0); /* выезжает на место */
 }

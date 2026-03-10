@@ -6,78 +6,81 @@
     <title>UNFORT</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="mobile.css">
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@100;400&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
 </head>
 <body>
 
-<header class="header">
-    <div class="header__container">
-        <button class="header__burger" aria-label="Меню">
-            <span class="header__burger-line"></span>
-            <span class="header__burger-line"></span>
-            <span class="header__burger-line"></span>
-        </button>
-        <a href="" class="header__nav-link">Каталог</a>
-        <a href="" class="header__nav-link">Коллекции</a>
-        <a href="" class="header__logo">UNFORT</a>
-        <a href="" class="header__icon header__icon--favorite">
-            <img width="30px" src="image/HEART.svg" alt="">
-            <span class="header__favorite-count">0</span>
-        </a>
-        <a href="" class="header__icon"><img width="30px" src="image/BIN.svg" alt=""></a>
+<!-- Весь основной контент (кроме футера) обёрнут в main-content -->
+<div class="main-content">
+    <header class="header">
+        <div class="header__container">
+            <button class="header__burger" aria-label="Меню">
+                <span class="header__burger-line"></span>
+                <span class="header__burger-line"></span>
+                <span class="header__burger-line"></span>
+            </button>
+            <a href="" class="header__nav-link">Каталог</a>
+            <a href="" class="header__nav-link">Коллекции</a>
+            <a href="" class="header__logo">UNFORT</a>
+            <a href="" class="header__icon header__icon--favorite">
+                <img width="30px" src="image/HEART.svg" alt="">
+                <span class="header__favorite-count">0</span>
+            </a>
+            <a href="" class="header__icon"><img width="30px" src="image/BIN.svg" alt=""></a>
+        </div>
+    </header>
+    <div class="header__menu">
+        <button class="header__menu-close" aria-label="Закрыть меню">&times;</button>
+        <nav class="header__menu-nav">
+            <a href="#" class="header__menu-link">Каталог</a>
+            <a href="#" class="header__menu-link">Доставка</a>
+            <a href="#" class="header__menu-link">Возврат</a>
+            <a href="#" class="header__menu-link">О нас</a>
+            <a href="#" class="header__menu-link">Поддержка</a>
+        </nav>
     </div>
-</header>
-<div class="header__menu">
-    <button class="header__menu-close" aria-label="Закрыть меню">&times;</button>
-    <nav class="header__menu-nav">
-        <a href="#" class="header__menu-link">Каталог</a>
-        <a href="#" class="header__menu-link">Доставка</a>
-        <a href="#" class="header__menu-link">Возврат</a>
-        <a href="#" class="header__menu-link">О нас</a>
-        <a href="#" class="header__menu-link">Поддержка</a>
-    </nav>
-</div>
-<div class="overlay"></div>
-<div class="category-tabs-wrapper">
-    <div class="category-tabs">
-        <button class="category-tab active" data-category="all">ALL</button>
-        <button class="category-tab" data-category="outerwear">OUTERWEAR</button>
-        <button class="category-tab" data-category="hoodies">HOODIES</button>
-        <button class="category-tab" data-category="longsleeve">LONG SLEEVE</button>
-        <button class="category-tab" data-category="tshirts">T-SHIRTS</button>
-        <button class="category-tab" data-category="pants">PANTS</button>
-        <button class="category-tab" data-category="shorts">SHORTS</button>
-        <button class="category-tab" data-category="accessories">ACCESSORIES</button>
+    <div class="overlay"></div>
+    <div class="category-tabs-wrapper">
+        <div class="category-tabs">
+            <button class="category-tab active" data-category="all">ALL</button>
+            <button class="category-tab" data-category="outerwear">OUTERWEAR</button>
+            <button class="category-tab" data-category="hoodies">HOODIES</button>
+            <button class="category-tab" data-category="longsleeve">LONG SLEEVE</button>
+            <button class="category-tab" data-category="tshirts">T-SHIRTS</button>
+            <button class="category-tab" data-category="pants">PANTS</button>
+            <button class="category-tab" data-category="shorts">SHORTS</button>
+            <button class="category-tab" data-category="accessories">ACCESSORIES</button>
+        </div>
     </div>
-</div>
 
-<section class="products">
-    <div class="products__grid" id="products-grid"></div>
-</section>
+    <section class="products">
+        <div class="products__grid" id="products-grid"></div>
+    </section>
 
-<!-- Оверлей для избранного -->
-<div class="favorite-overlay" id="favoriteOverlay"></div>
+    <!-- Оверлей для избранного -->
+    <div class="favorite-overlay" id="favoriteOverlay"></div>
 
-<!-- Модальное окно избранного -->
-<div class="favorite-modal" id="favoriteModal">
-    <div class="favorite-modal__inner">
-        <button class="favorite-modal__close">&times;</button>
-        <h2 class="favorite-modal__title">Избранное</h2>
-        <div class="favorite-modal__items"></div>
+    <!-- Модальное окно избранного -->
+    <div class="favorite-modal" id="favoriteModal">
+        <div class="favorite-modal__inner">
+            <button class="favorite-modal__close">&times;</button>
+            <h2 class="favorite-modal__title">Избранное</h2>
+            <div class="favorite-modal__items"></div>
+        </div>
     </div>
-</div>
-<!-- Пагинация (только для ALL) -->
-<div class="pagination" id="pagination">
-    <button class="pagination__arrow pagination__arrow--prev" id="prevPage" disabled>←</button>
-    <div class="pagination__pages">
-        <button class="pagination__page active" data-page="1">1</button>
-        <button class="pagination__page" data-page="2">2</button>
+    <!-- Пагинация (только для ALL) -->
+    <div class="pagination" id="pagination">
+        <button class="pagination__arrow pagination__arrow--prev" id="prevPage" disabled>←</button>
+        <div class="pagination__pages">
+            <button class="pagination__page active" data-page="1">1</button>
+            <button class="pagination__page" data-page="2">2</button>
+        </div>
+        <button class="pagination__arrow pagination__arrow--next" id="nextPage">→</button>
     </div>
-    <button class="pagination__arrow pagination__arrow--next" id="nextPage">→</button>
-</div>
 
-<a class="sticked-low" href="https://t.me/unfort_support"><img width="35px" height="35px" src="image/logo.sticked.webp" alt=""></a>
-
+    <a class="sticked-low" href="https://t.me/unfort_support"><img width="35px" height="35px" src="image/logo.sticked.webp" alt=""></a>
+</div> <!-- конец .main-content -->
 
 <!-- Футер -->
 <footer class="footer">
@@ -115,9 +118,7 @@
             </div>
         </div>
 
-
-
-        <!-- Бренд "infort" (прижат к правому краю) -->
+        <!-- Бренд -->
         <div class="footer__brand">
             <span>UNFORT</span>
         </div>
@@ -133,10 +134,29 @@
     </div>
 </footer>
 
+<!-- Оверлей для приветствия -->
+<div class="welcome-overlay" id="welcomeOverlay"></div>
 
+<!-- Модальное окно приветствия -->
+<div class="welcome-modal" id="welcomeModal">
+    <div class="welcome-modal__inner">
+        <button class="welcome-modal__close">&times;</button>
+        <div class="welcome-modal__image">
+            <img src="image/Frame_252.png.webp" alt="Welcome">
+        </div>
+        <h2 class="welcome-modal__title">WELCOME TO THE FAMILY</h2>
+        <p class="welcome-modal__description">Подписывайся и будь в курсе закрытой информации:</p>
+        <ul class="welcome-modal__list">
+            <li>Новинок</li>
+            <li>Новостей</li>
+            <li>Скидок</li>
+            <li>Розыгрышей</li>
+        </ul>
+        <a href="https://t.me/+8h0qPRLvvu9hOWIy" target="_blank" class="welcome-modal__button">Подписаться</a>
+    </div>
+</div>
 
-
-<!-- Подключаем новые скрипты -->
+<!-- Подключаем скрипты -->
 <script src="data.js"></script>
 <script src="index.js"></script>
 </body>
