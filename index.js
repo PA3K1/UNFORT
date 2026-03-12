@@ -33,7 +33,7 @@ function renderProducts(productsArray) {
         card.dataset.category = product.category;
 
         card.innerHTML = `
-            <a href="#" class="product-card__link">
+            <a href="product.html?id=${product.id}" class="product-card__link">
                 <div class="product-card__image-wrapper">
                     <img src="${product.imgPrimary}" alt="${product.title}" class="product-card__image product-card__image--primary">
                     <img src="${product.imgSecondary}" alt="${product.title} hover" class="product-card__image product-card__image--secondary">

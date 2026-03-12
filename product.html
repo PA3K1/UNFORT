@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UNFORT - Товар</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="mobile.css">
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@100;400&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+<div class="main-content">
+    <header class="header">
+        <div class="header__container">
+            <button class="header__burger" aria-label="Меню">
+                <span class="header__burger-line"></span>
+                <span class="header__burger-line"></span>
+                <span class="header__burger-line"></span>
+            </button>
+            <a href="index.html" class="header__nav-link">Каталог</a>
+            <a href="" class="header__nav-link">Коллекции</a>
+            <a href="index.html" class="header__logo"><img src="image/1.png" alt=""></a>
+            <a href="" class="header__icon header__icon--favorite">
+                <img width="30px" src="image/HEART.svg" alt="">
+                <span class="header__favorite-count">0</span>
+            </a>
+            <a href="" class="header__icon"><img width="30px" src="image/BIN.svg" alt=""></a>
+        </div>
+    </header>
+    
+    <!-- Меню (такое же как на главной) -->
+    <div class="header__menu">
+        <button class="header__menu-close" aria-label="Закрыть меню">&times;</button>
+        <nav class="header__menu-nav">
+            <a href="index.html" class="header__menu-link">Каталог</a>
+            <a href="#" class="header__menu-link">Доставка</a>
+            <a href="#" class="header__menu-link">Возврат</a>
+            <a href="#" class="header__menu-link">О нас</a>
+            <a href="#" class="header__menu-link">Поддержка</a>
+        </nav>
+    </div>
+    <div class="overlay"></div>
+
+    <!-- Страница товара -->
+    <div class="product-page" id="product-page">
+        <div class="product-page__container">
+            <!-- Здесь будет загружаться товар -->
+        </div>
+    </div>
+
+    <!-- Оверлей и модалки (те же, что на главной) -->
+    <div class="favorite-overlay" id="favoriteOverlay"></div>
+    <div class="favorite-modal" id="favoriteModal">
+        <div class="favorite-modal__inner">
+            <button class="favorite-modal__close">&times;</button>
+            <h2 class="favorite-modal__title">Избранное</h2>
+            <div class="favorite-modal__items"></div>
+        </div>
+    </div>
+
+    <a class="sticked-low" href="https://t.me/unfort_support"><img width="35px" height="35px" src="image/logo.sticked.webp" alt=""></a>
+</div>
+
+<!-- Футер (такой же как на главной) -->
+<footer class="footer">
+    <!-- ... ваш футер ... -->
+</footer>
+
+<!-- Оверлей для приветствия -->
+<div class="welcome-overlay" id="welcomeOverlay"></div>
+<div class="welcome-modal" id="welcomeModal">
+    <!-- ... ваше приветствие ... -->
+</div>
+
+<script src="data.js"></script>
+<script src="product.js"></script>
+</body>
+</html>
