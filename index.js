@@ -75,16 +75,16 @@ function renderAllPage(page) {
     updatePagination();
     pagination.classList.remove('hidden');
 
-    // Прокрутка к началу списка товаров
+    // Прокрутка к началу списка товаров (можно заменить на window.scrollTo при необходимости)
     productsGrid.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
-// Рендер для остальных категорий (без пагинации)
+// Рендер для остальных категорий (без пагинации) — без прокрутки!
 function renderCategory(category) {
     const filtered = products.filter(p => p.category === category);
     renderProducts(filtered);
     pagination.classList.add('hidden');
-    productsGrid.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    // Прокрутка полностью убрана — страница не дёргается
 }
 
 /* ========== ФИЛЬТРАЦИЯ ПО КАТЕГОРИЯМ ========== */
@@ -133,6 +133,7 @@ pageButtons.forEach(btn => {
         if (page !== currentPage) {
             renderAllPage(page);
         }
+        // Можно добавить else с прокруткой вверх, если нужно
     });
 });
 
@@ -309,19 +310,6 @@ document.addEventListener('keydown', (e) => {
         closeMenu();
     }
 });
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 /* ========== МОДАЛЬНОЕ ОКНО ПРИВЕТСТВИЯ ========== */
 const welcomeOverlay = document.getElementById('welcomeOverlay');
