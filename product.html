@@ -29,7 +29,7 @@
         </div>
     </header>
     
-    <!-- Меню (такое же как на главной) -->
+    <!-- Меню -->
     <div class="header__menu">
         <button class="header__menu-close" aria-label="Закрыть меню">&times;</button>
         <nav class="header__menu-nav">
@@ -49,7 +49,7 @@
         </div>
     </div>
 
-    <!-- Оверлей и модалки (те же, что на главной) -->
+    <!-- Оверлей и модалка избранного -->
     <div class="favorite-overlay" id="favoriteOverlay"></div>
     <div class="favorite-modal" id="favoriteModal">
         <div class="favorite-modal__inner">
@@ -59,18 +59,80 @@
         </div>
     </div>
 
+    <!-- Модальное окно полноэкранного просмотра -->
+    <div class="fullscreen-modal" id="fullscreenModal">
+        <div class="fullscreen-modal__content">
+            <button class="fullscreen-modal__close">&times;</button>
+            <button class="fullscreen-modal__arrow fullscreen-modal__arrow--prev">←</button>
+            <img src="" alt="" class="fullscreen-modal__image" id="fullscreenImage">
+            <button class="fullscreen-modal__arrow fullscreen-modal__arrow--next">→</button>
+        </div>
+    </div>
+
     <a class="sticked-low" href="https://t.me/unfort_support"><img width="35px" height="35px" src="image/logo.sticked.webp" alt=""></a>
 </div>
 
-<!-- Футер (такой же как на главной) -->
+<!-- Футер (полная копия из index.html) -->
 <footer class="footer">
-    <!-- ... ваш футер ... -->
+    <div class="footer__top">
+        <div class="footer__group footer__group--left">
+            <a href="#" class="footer__link">Каталог</a>
+            <a href="#" class="footer__link">Коллекции</a>
+            <a href="#" class="footer__link">Доставка</a>
+        </div>
+        <div class="footer__group footer__group--right">
+            <a href="#" class="footer__link">Возврат</a>
+            <a href="#" class="footer__link">Договор оферты</a>
+            <a href="#" class="footer__link">Политика конфиденциальности</a>
+        </div>
+        <div class="footer__group footer__group--center">
+            <a href="mailto:support@unfort.ru" class="footer__email">support@unfort.ru</a>
+            <div class="footer__socials">
+                <a href="#" class="footer__social" target="_blank" rel="noopener noreferrer" aria-label="Telegram">
+                    <img src="image/instagram.webp" alt="Telegram">
+                </a>
+                <a href="#" class="footer__social" target="_blank" rel="noopener noreferrer" aria-label="VK">
+                    <img src="image/instagram.webp" alt="VK">
+                </a>
+                <a href="#" class="footer__social" target="_blank" rel="noopener noreferrer" aria-label="YouTube">
+                    <img src="image/instagram.webp" alt="YouTube">
+                </a>
+                <a href="#" class="footer__social" target="_blank" rel="noopener noreferrer" aria-label="TikTok">
+                    <img src="image/instagram.webp" alt="TikTok">
+                </a>
+            </div>
+        </div>
+        <div class="footer__brand">
+            <span>UNFORT</span>
+        </div>
+    </div>
+    <div class="footer__bottom">
+        <p class="footer__made">
+            Made <span>on</span>
+            <img src="image/tildacopy.png" alt="Tilda" class="footer__tilda-logo">
+            Tilda
+        </p>
+    </div>
 </footer>
 
-<!-- Оверлей для приветствия -->
+<!-- Оверлей и модальное окно приветствия (полная копия из index.html) -->
 <div class="welcome-overlay" id="welcomeOverlay"></div>
 <div class="welcome-modal" id="welcomeModal">
-    <!-- ... ваше приветствие ... -->
+    <div class="welcome-modal__inner">
+        <button class="welcome-modal__close">&times;</button>
+        <div class="welcome-modal__image">
+            <img src="image/Frame_252.png.webp" alt="Welcome">
+        </div>
+        <h2 class="welcome-modal__title">WELCOME TO THE FAMILY</h2>
+        <p class="welcome-modal__description">Подписывайся и будь в курсе закрытой информации:</p>
+        <ul class="welcome-modal__list">
+            <li>Новинок</li>
+            <li>Новостей</li>
+            <li>Скидок</li>
+            <li>Розыгрышей</li>
+        </ul>
+        <a href="https://t.me/+8h0qPRLvvu9hOWIy" target="_blank" class="welcome-modal__button">Подписаться</a>
+    </div>
 </div>
 
 <script src="data.js"></script>
