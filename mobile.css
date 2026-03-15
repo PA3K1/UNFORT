@@ -129,3 +129,218 @@
         justify-content: center;
     }
 }
+
+
+/* Мобильная версия страницы товара (max-width: 450px) */
+@media (max-width: 450px) {
+    .product-page {
+        padding: 0;
+    }
+
+    .product-detail {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+
+    .product-detail__main-image {
+        max-width: 50%;
+    }
+
+    .product-detail__info {
+        padding: 0 15px;
+    }
+
+    .product-detail__title {
+        font-size: 18px;
+    }
+
+    .product-detail__price--new {
+        font-size: 20px;
+    }
+
+    .product-detail__price--old {
+        font-size: 16px;
+    }
+
+    .product-detail__installment {
+        font-size: 16px;
+        padding-bottom: 15px;
+    }
+
+    .product-detail__size-btn {
+        min-width: 40px;
+        height: 40px;
+        font-size: 14px;
+    }
+
+    .product-detail__actions {
+        margin: 10px 0;
+    }
+
+    .product-detail__favorite-btn {
+        width: 40px;
+        height: 40px;
+    }
+
+    .product-detail__cart-btn {
+        height: 40px;
+        font-size: 14px;
+        display: flex;
+        align-items: center ;
+        justify-content: start;
+        padding-left: 120px;
+    }
+
+    .product-detail__description p {
+        font-size: 13px;
+    }
+
+    /* Аккордеон */
+    .product-detail__accordion {
+        margin: 20px 0;
+        padding: 0 15px;
+    }
+
+    .accordion-header {
+        padding: 12px 0;
+        font-size: 14px;
+    }
+
+    .accordion-content.show {
+        padding: 15px 0;
+    }
+
+    .accordion-content li {
+        font-size: 13px;
+    }
+
+    /* Смотрите также */
+    .product-detail__related {
+        margin-top: 30px;
+        padding: 20px 15px 0;
+    }
+
+    .product-detail__related h2 {
+        font-size: 14px;
+        margin-bottom: 20px;
+    }
+
+    .related-grid {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+}
+
+@media (max-width: 450px) {
+    /* Главная страница: две карточки в ряд */
+    .products__grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+    }
+
+    /* Страница товара: изображение на всю ширину */
+    .product-detail__main-image {
+        max-width: 100%;
+        width: 100%;
+        aspect-ratio: 1/1; /* сохраняем квадрат */
+    }
+
+    /* Убедимся, что контейнер галереи не имеет лишних отступов */
+    .product-detail__gallery {
+        padding: 0;
+        width: 68%;
+    }
+
+    /* Стрелки можно немного уменьшить и расположить ближе к краям */
+    .product-detail__arrow {
+        width: 30px;
+        height: 30px;
+        font-size: 18px;
+    }
+
+    .product-detail__arrow--prev {
+        left: 5px;
+    }
+
+    .product-detail__arrow--next {
+        right: 5px;
+    }
+
+    /* Остальные элементы (заголовок, цены, размеры и т.д.) уже будут с padding 15px,
+       который мы задали ранее. Дополним, если нужно */
+}
+
+/* Футер для мобильных (max-width: 450px) */
+@media (max-width: 450px) {
+    .footer__top {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 20px;
+        padding: 30px 20px;
+    }
+
+    /* Логотип UNFORT */
+    .footer__brand {
+        order: 0;
+        margin: 0;
+        font-size: 32px;
+        text-align: left;
+        width: auto;
+        padding: 0;
+    }
+
+    /* Объединяем левую и правую группы ссылок в одну колонку */
+    .footer__group--left,
+    .footer__group--right {
+        width: 100%;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+        margin: 0;
+        padding: 0;
+    }
+
+    /* Убираем дублирование отступов */
+    .footer__group--left {
+        order: 1;
+    }
+    .footer__group--right {
+        order: 2;
+    }
+
+    /* Центральный блок (соцсети и почта) */
+    .footer__group--center {
+        order: 3;
+        width: 100%;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+        margin: 0;
+    }
+
+    /* Соцсети в ряд, прижаты к левому краю */
+    .footer__socials {
+        justify-content: flex-start;
+        gap: 10px;
+    }
+
+    /* Круглые иконки */
+    .footer__social {
+        width: 40px;
+        height: 40px;
+    }
+
+    /* Почта */
+    .footer__email {
+        font-size: 14px;
+        margin-top: 5px;
+    }
+
+    /* Нижняя часть футера */
+    .footer__bottom {
+        height: auto;
+        padding: 15px 20px;
+        text-align: left;
+        justify-content: flex-start;
+    }
+}

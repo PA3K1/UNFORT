@@ -1043,8 +1043,8 @@ body {
 }
 
 .product-detail__title {
-    font-size: 28px;
-    font-weight: 600;
+    font-size: 21px;
+    font-weight: 500;
     margin: 0;
     font-family: 'Kinetika', sans-serif;
     font-style: italic;        /* из нижней части */
@@ -1127,6 +1127,7 @@ body {
     justify-content: center;
     transition: all 0.2s;
     padding: 2px;
+    border-radius: 50%;
 }
 
 .product-detail__favorite-btn:hover {
@@ -1258,36 +1259,6 @@ body {
     right: 20px;
 }
 
-/* ----- АДАПТАЦИЯ ДЛЯ ПЛАНШЕТОВ И МОБИЛЬНЫХ ----- */
-@media (max-width: 992px) {
-    .product-detail__main-image {
-        max-width: 100%;    /* на узких экранах убираем ограничение */
-    }
-}
-
-@media (max-width: 768px) {
-    .product-detail {
-        grid-template-columns: 1fr;
-        gap: 30px;
-    }
-    
-    .product-detail__title {
-        font-size: 22px;
-    }
-    
-    .product-detail__arrow {
-        width: 30px;
-        height: 30px;
-        font-size: 16px;
-    }
-    
-    .fullscreen-modal__arrow {
-        width: 40px;
-        height: 40px;
-        font-size: 30px;
-    }
-}
-
 
 
 
@@ -1319,6 +1290,7 @@ body {
     align-items: center;
     transition: background 0.2s;
 }
+
 
 .accordion-header:hover {
     background: #f0f0f0;
@@ -1376,10 +1348,10 @@ body {
 }
 
 .product-detail__related h2 {
-    font-size: 24px;
-    font-weight: 600;
+    font-size: 14px;
+    font-weight: 500;
     margin-bottom: 30px;
-    text-align: center;
+        font-family: Kinetika;
 }
 
 .related-grid {
@@ -1391,19 +1363,6 @@ body {
 .related-grid .product-card {
     max-width: none;
     margin: 0;
-}
-
-/* Адаптивность */
-@media (max-width: 992px) {
-    .related-grid {
-        grid-template-columns: repeat(2, 1fr);
-    }
-}
-
-@media (max-width: 600px) {
-    .related-grid {
-        grid-template-columns: 1fr;
-    }
 }
 
 
