@@ -1,5 +1,11 @@
+let mapInitialized = false;
+let currentMap = null;
+let currentPlacemark = null;
+
+
 /* ========== ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ ========== */
 let favorites = JSON.parse(localStorage.getItem('favorites')) || [];
+let cart = JSON.parse(localStorage.getItem('cart')) || []; // можно сохранять, но пока не используем
 
 // Элементы
 const favoriteCount = document.querySelector('.header__favorite-count');
@@ -13,6 +19,12 @@ const fullscreenImage = document.getElementById('fullscreenImage');
 const fullscreenClose = document.querySelector('.fullscreen-modal__close');
 const fullscreenPrev = document.querySelector('.fullscreen-modal__arrow--prev');
 const fullscreenNext = document.querySelector('.fullscreen-modal__arrow--next');
+
+// Элементы корзины
+const cartModal = document.getElementById('cartModal');
+const cartOverlay = document.getElementById('cartOverlay');
+const cartClose = document.querySelector('.cart-modal__close');
+const cartContent = document.getElementById('cartContent');
 
 // Объект для быстрого доступа к товарам по id
 const productsMap = {};
@@ -29,7 +41,6 @@ if (product) {
     if (product.images && Array.isArray(product.images) && product.images.length > 0) {
         productImages = product.images;
     } else {
-        // Если нет массива, создаём на основе двух изображений, повторяя до 9
         const baseImages = [product.imgPrimary, product.imgSecondary].filter(Boolean);
         for (let i = 0; i < 9; i++) {
             productImages.push(baseImages[i % baseImages.length]);
@@ -48,7 +59,6 @@ function renderProductPage() {
 
     const isFavorite = favorites.includes(product.id);
     
-    // Формируем описание: если есть product.description, используем его, иначе заглушку
     const descriptionHTML = product.description 
         ? product.description.split('\n').map(p => `<p>${p}</p>`).join('')
         : `<p>Описание товара временно отсутствует.</p>`;
@@ -107,7 +117,7 @@ function renderProductPage() {
             </div>
         </div>
 
-        <!-- АККОРДЕОН (отдельно, на всю ширину) -->
+        <!-- АККОРДЕОН -->
         <div class="product-detail__accordion">
             <div class="accordion-item">
                 <button class="accordion-header" data-target="characteristics">
@@ -145,13 +155,9 @@ function renderProductPage() {
         </div>
     `;
 
-    // Инициализация галереи
     initGallery();
-
-    // Инициализация аккордеона
     initAccordion();
 
-    // Инициализация кнопки избранного
     const favBtn = document.querySelector('.product-detail__favorite-btn');
     if (favBtn) {
         favBtn.addEventListener('click', (e) => {
@@ -160,7 +166,15 @@ function renderProductPage() {
         });
     }
 
-    // Инициализация кнопок размеров
+    // Кнопка добавления в корзину
+    const cartBtn = document.querySelector('.product-detail__cart-btn');
+    if (cartBtn) {
+        cartBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            openCartModal();
+        });
+    }
+
     document.querySelectorAll('.product-detail__size-btn').forEach(btn => {
         btn.addEventListener('click', () => {
             document.querySelectorAll('.product-detail__size-btn').forEach(b => b.classList.remove('active'));
@@ -168,8 +182,221 @@ function renderProductPage() {
         });
     });
 
-    // Загружаем "Смотрите также"
     renderRelatedProducts();
+}
+
+/* ========== ФУНКЦИИ КОРЗИНЫ ========== */
+function openCartModal() {
+    renderCartContent();
+    cartModal.classList.add('active');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeCartModal() {
+    cartModal.classList.remove('active');
+    document.body.style.overflow = '';
+}
+
+function renderCartContent() {
+    if (!cartContent) return;
+
+    // Получаем выбранный размер (если есть активный)
+    const activeSizeBtn = document.querySelector('.product-detail__size-btn.active');
+    const selectedSize = activeSizeBtn ? activeSizeBtn.textContent : 'M';
+
+    const priceStr = product.priceNew.replace(/[^\d]/g, '');
+    const priceNum = parseInt(priceStr, 10);
+    let quantity = 1;
+    const totalPrice = priceNum * quantity;
+
+    cartContent.innerHTML = `
+        <div class="cart-section">
+            <div class="cart-item">
+                <img src="${product.imgPrimary}" alt="${product.title}" class="cart-item__image">
+                <div class="cart-item__info">
+                    <h4 class="cart-item__title">${product.title}</h4>
+                    <div class="cart-item__size">Размер: ${selectedSize}</div>
+                    <div class="cart-item__quantity">
+                        <button class="cart-item__quantity-btn" data-action="decr">-</button>
+                        <span class="cart-item__quantity-value" id="cartQuantity">${quantity}</span>
+                        <button class="cart-item__quantity-btn" data-action="incr">+</button>
+                    </div>
+                </div>
+                <div class="cart-item__price" id="cartItemPrice">${product.priceNew}</div>
+            </div>
+        </div>
+
+        <div class="cart-section">
+            <h3>Доставка</h3>
+            <div class="cart-delivery-options">
+                <label class="cart-delivery-option">
+                    <input type="radio" name="delivery" value="cdek" checked>
+                    <div class="cart-delivery-option__info">
+                        <div class="cart-delivery-option__title">СДЭК</div>
+                        <div class="cart-delivery-option__details">от 7 дней</div>
+                    </div>
+                    <div class="cart-delivery-option__price">от 385 ₽</div>
+                </label>
+                <label class="cart-delivery-option">
+                    <input type="radio" name="delivery" value="pochta">
+                    <div class="cart-delivery-option__info">
+                        <div class="cart-delivery-option__title">Почта России</div>
+                        <div class="cart-delivery-option__details">от 7 дней</div>
+                    </div>
+                    <div class="cart-delivery-option__price">550 ₽</div>
+                </label>
+            </div>
+            <div class="cart-pickup-point">
+                <label>Пункт получения</label>
+                <select>
+                    <option>Выберите пункт получения</option>
+                    <option>г. Новосибирск, ул. Ленина, 1</option>
+                    <option>г. Новосибирск, ул. Дзержинского, 15</option>
+                </select>
+                <div id="cartMap" style="width: 100%; height: 200px; margin-top: 10px;"></div>
+            </div>
+        </div>
+
+        <div class="cart-section">
+            <h3>Личные данные</h3>
+            <div class="cart-field">
+                <label>ФИО</label>
+                <input type="text" placeholder="Иванов Иван Иванович">
+            </div>
+            <div class="cart-field">
+                <label>Номер телефона</label>
+                <input type="tel" placeholder="+7 (000) 000-00-00">
+            </div>
+            <div class="cart-field">
+                <label>Почта</label>
+                <input type="email" placeholder="Email">
+            </div>
+            <div class="cart-field">
+                <label>Индекс</label>
+                <input type="text" placeholder="Почтовый индекс">
+            </div>
+            <div class="cart-field">
+                <label>Адрес</label>
+                <input type="text" placeholder="Адрес проживания">
+            </div>
+            <div class="cart-field">
+                <label>Соц. сети для связи</label>
+                <input type="text" placeholder="Вставьте ссылку">
+            </div>
+            <div class="cart-field">
+                <label>Промокод</label>
+                <input type="text" placeholder="Введите промокод">
+            </div>
+            <div class="cart-field">
+                <label>Откуда о нас узнали?</label>
+                <input type="text" placeholder="Соц. сети, реклама, от друзей и т.д.">
+            </div>
+        </div>
+
+        <div class="cart-section">
+            <h3>Способ оплаты</h3>
+            <div class="cart-payment-options">
+                <label class="cart-payment-option">
+                    <input type="radio" name="payment" value="card" checked>
+                    Дебетовой картой (Visa, Mastercard и др.) через Tinkoff
+                </label>
+                <label class="cart-payment-option">
+                    <input type="radio" name="payment" value="split">
+                    Долями от Тинькофф
+                </label>
+            </div>
+        </div>
+
+        <div class="cart-total" id="cartTotal">Итоговая сумма: ${formatPrice(totalPrice)}</div>
+
+        <button class="cart-submit">Оформить заказ</button>
+    `;
+
+    // Обработчики количества
+    const quantitySpan = document.getElementById('cartQuantity');
+    const itemPriceSpan = document.getElementById('cartItemPrice');
+    const totalSpan = document.getElementById('cartTotal');
+
+    let currentQuantity = quantity;
+    let currentPrice = priceNum;
+
+    function updateQuantity(delta) {
+        const newQ = currentQuantity + delta;
+        if (newQ < 1) return;
+        currentQuantity = newQ;
+        quantitySpan.textContent = currentQuantity;
+        itemPriceSpan.textContent = formatPrice(currentPrice * currentQuantity);
+        totalSpan.textContent = `Итоговая сумма: ${formatPrice(currentPrice * currentQuantity)}`;
+    }
+
+    document.querySelectorAll('.cart-item__quantity-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const action = btn.dataset.action;
+            if (action === 'incr') updateQuantity(1);
+            else if (action === 'decr') updateQuantity(-1);
+        });
+    });
+
+    // Инициализация карты
+    if (typeof ymaps !== 'undefined') {
+        // Уничтожаем предыдущую карту, если она была
+        if (currentMap) {
+            currentMap.destroy();
+            currentMap = null;
+            mapInitialized = false;
+        }
+
+        ymaps.ready(() => {
+            const points = {
+                'г. Новосибирск, ул. Ленина, 1': [55.030, 82.920],
+                'г. Новосибирск, ул. Дзержинского, 15': [55.041, 82.944]
+            };
+
+            const selectElement = document.querySelector('.cart-pickup-point select');
+            if (!selectElement) return;
+
+            const initialPoint = selectElement.value;
+            const coords = points[initialPoint] || [55.030, 82.920];
+
+            currentMap = new ymaps.Map('cartMap', {
+                center: coords,
+                zoom: 14
+            });
+
+            currentPlacemark = new ymaps.Placemark(coords, {
+                hintContent: initialPoint,
+                balloonContent: initialPoint
+            });
+            currentMap.geoObjects.add(currentPlacemark);
+
+            selectElement.addEventListener('change', (e) => {
+                const newPoint = e.target.value;
+                const newCoords = points[newPoint];
+                if (newCoords && currentMap) {
+                    currentMap.setCenter(newCoords, 14);
+                    if (currentPlacemark) {
+                        currentPlacemark.geometry.setCoordinates(newCoords);
+                        currentPlacemark.properties.set({
+                            hintContent: newPoint,
+                            balloonContent: newPoint
+                        });
+                    }
+                }
+            });
+
+            mapInitialized = true;
+        });
+    }
+
+    // Закрытие по крестику и оверлею
+    const closeBtn = document.querySelector('.cart-modal__close');
+    if (closeBtn) closeBtn.addEventListener('click', closeCartModal);
+    if (cartOverlay) cartOverlay.addEventListener('click', closeCartModal);
+}
+
+function formatPrice(price) {
+    return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + '₽';
 }
 
 /* ========== ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ========== */
@@ -187,22 +414,13 @@ function renderCharacteristics(charArray) {
 
 function initAccordion() {
     const headers = document.querySelectorAll('.accordion-header');
-    
     headers.forEach(header => {
         header.addEventListener('click', () => {
             const targetId = header.dataset.target;
             const content = document.getElementById(targetId);
             const isActive = header.classList.contains('active');
-
-            // Закрываем все
-            document.querySelectorAll('.accordion-header').forEach(h => {
-                h.classList.remove('active');
-            });
-            document.querySelectorAll('.accordion-content').forEach(c => {
-                c.classList.remove('show');
-            });
-
-            // Если кликнутый не был активен, открываем его
+            document.querySelectorAll('.accordion-header').forEach(h => h.classList.remove('active'));
+            document.querySelectorAll('.accordion-content').forEach(c => c.classList.remove('show'));
             if (!isActive) {
                 header.classList.add('active');
                 content.classList.add('show');
@@ -215,10 +433,7 @@ function renderRelatedProducts() {
     const relatedGrid = document.getElementById('relatedGrid');
     if (!relatedGrid) return;
 
-    // Получаем все товары, кроме текущего
     const otherProducts = products.filter(p => p.id !== product.id);
-    
-    // Перемешиваем и берём первые 4
     const shuffled = otherProducts.sort(() => 0.5 - Math.random());
     const selected = shuffled.slice(0, 4);
 
@@ -248,7 +463,6 @@ function renderRelatedProducts() {
         `;
     }).join('');
 
-    // Инициализируем кнопки избранного для новых карточек
     document.querySelectorAll('#relatedGrid .product-card__favorite').forEach(btn => {
         btn.addEventListener('click', (e) => {
             e.preventDefault();
@@ -261,7 +475,7 @@ function renderRelatedProducts() {
     });
 }
 
-/* ========== ГАЛЕРЕЯ (без изменений) ========== */
+/* ========== ГАЛЕРЕЯ ========== */
 function initGallery() {
     const mainImage = document.getElementById('mainProductImage');
     const prevBtn = document.querySelector('.product-detail__arrow--prev');
@@ -301,7 +515,7 @@ function initGallery() {
     });
 }
 
-/* ========== ПОЛНОЭКРАННЫЙ РЕЖИМ (без изменений) ========== */
+/* ========== ПОЛНОЭКРАННЫЙ РЕЖИМ ========== */
 function openFullscreen(startIndex) {
     currentImageIndex = startIndex;
     fullscreenImage.src = productImages[currentImageIndex];
@@ -470,7 +684,16 @@ document.querySelectorAll('.header__menu-link').forEach(link => link.addEventLis
 document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape' && menu.classList.contains('header__menu--open')) closeMenu();
     if (e.key === 'Escape' && favoriteModal && favoriteModal.classList.contains('active')) closeFavorites();
+    if (e.key === 'Escape' && cartModal && cartModal.classList.contains('active')) closeCartModal();
 });
 
 /* ========== ЗАПУСК ========== */
 renderProductPage();
+
+// Preloader
+window.addEventListener('load', function() {
+    const preloader = document.getElementById('preloader');
+    if (preloader) {
+        preloader.classList.add('hidden');
+    }
+});
