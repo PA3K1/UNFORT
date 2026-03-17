@@ -91,6 +91,55 @@ function validateCity(city) {
     return city.trim().length > 2;
 }
 
+
+// Проверка всех полей на валидность
+function validateAllFields() {
+    const pickupContainer = document.getElementById('pickupPointContainer');
+    const pickupValid = (pickupContainer && pickupContainer.style.display !== 'none') ? formState.pickup.valid : true;
+    
+    return formState.city.valid &&
+        formState.fullName.valid &&
+        formState.phone.valid &&
+        formState.email.valid &&
+        formState.postalCode.valid &&
+        formState.address.valid &&
+        pickupValid;
+}
+
+function showSuccessScreen() {
+    // Меняем содержимое модального окна
+    const cartContainer = document.querySelector('.cart-modal__container');
+    if (cartContainer) cartContainer.style.width = '400px';
+    
+    const cartContent = document.getElementById('cartContent');
+    cartContent.innerHTML = `
+        <div class="cart-success">
+            <div class="cart-success__free-shipping">
+                Бесплатная доставка от 14 990 руб.
+            </div>
+            <div class="cart-success__message">
+                Спасибо! Заказ оформлен.<br>
+                Пожалуйста, подождите.<br>
+                Идет переход к оплате...
+            </div>
+        </div>
+    `;
+    
+    // Блокируем повторное нажатие
+    const submitBtn = document.querySelector('.cart-submit');
+    if (submitBtn) {
+        submitBtn.classList.add('processing');
+        submitBtn.disabled = true;
+    }
+    
+    // Открываем ссылку в новой вкладке и закрываем модалку через 1 секунду
+    setTimeout(() => {
+        window.open('https://pay.tbank.ru/lORxHESi', '_blank');
+        closeCartModal(); // закрываем модальное окно
+    }, 1000);
+}
+
+// Показать/скрыть ошибки
 // Показать/скрыть ошибки
 function showFieldError(fieldId, isValid) {
     const field = document.getElementById(fieldId);
@@ -106,6 +155,12 @@ function showFieldError(fieldId, isValid) {
         field.classList.remove('error');
         field.classList.add('valid');
         errorDiv.classList.remove('show');
+        
+        // Если все поля валидны, скрываем общее сообщение об ошибке
+        if (validateAllFields()) {
+            const errorMsg = document.querySelector('.cart-error-message');
+            if (errorMsg) errorMsg.classList.remove('show');
+        }
     }
 }
 
@@ -724,24 +779,40 @@ function renderCartContent() {
         }, 300);
     }
 
-    // Обработчик кнопки "Оформить заказ"
-    $('.cart-submit').off('click').on('click', function(e) {
-        e.preventDefault();
-        
-        if (validateForm()) {
-            // Здесь можно отправить данные
-            alert('Форма заполнена верно! Можно отправлять заказ.');
-            // closeCartModal();
+// Обработчик кнопки "Оформить заказ"
+$('.cart-submit').off('click').on('click', function(e) {
+    e.preventDefault();
+    
+    // Проверяем, не был ли уже показан экран успеха
+    if ($(this).hasClass('processing')) return;
+    
+    if (validateForm()) {
+        // Все поля заполнены – показываем экран успеха
+        showSuccessScreen();
+    } else {
+        // Показываем сообщение об ошибке над кнопкой
+        let errorMsg = document.querySelector('.cart-error-message');
+        if (!errorMsg) {
+            errorMsg = document.createElement('div');
+            errorMsg.className = 'cart-error-message show';
+            errorMsg.textContent = 'Пожалуйста, заполните все обязательные поля';
+            const submitBtn = document.querySelector('.cart-submit');
+            if (submitBtn) submitBtn.parentNode.insertBefore(errorMsg, submitBtn);
         } else {
-            // Прокрутка к первой ошибке
-            const firstError = $('.error').first();
-            if (firstError.length) {
-                $('.cart-modal__container').animate({
-                    scrollTop: firstError.offset().top - $('.cart-modal__container').offset().top + $('.cart-modal__container').scrollTop()
-                }, 300);
-            }
+            errorMsg.classList.add('show');
         }
-    });
+        
+        // Прокрутка к первой ошибке
+        const firstError = document.querySelector('.error');
+        if (firstError) {
+            const container = document.querySelector('.cart-modal__container');
+            container.scrollTo({
+                top: firstError.offsetTop - container.offsetTop,
+                behavior: 'smooth'
+            });
+        }
+    }
+});
 
     // Закрытие по крестику и оверлею
     const closeBtn = document.querySelector('.cart-modal__close');
