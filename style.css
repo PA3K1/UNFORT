@@ -234,7 +234,7 @@ body {
 
 /*СТИЛИ ДЛЯ КАРТОЧЕК С ТОВАРАМИ*/
 .products {
-    max-width: 1200px;
+    max-width: 100%; /* вместо 1200px */
     margin: 0 auto;
     padding: 0 20px 0.1px;
 }
@@ -242,21 +242,22 @@ body {
 .products__grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: 1px;
+    gap: 20px; /* увеличил отступ между карточками */
 }
 
 /* Карточка товара */
 .product-card {
     width: 100%;
-    max-width: 300px;          /* ширина карточки */
     background: #fff;
     border-radius: 0;
     transition: transform 0.2s;
-    margin: 0 auto;             /* центрирование внутри колонки */
-    border: 1px solid #a8a8a8;
+    margin: 0;
+    border: none; /* убрали рамку */
 }
 
-
+.product-card:hover {
+    transform: translateY(-2px);
+}
 
 .product-card__link {
     text-decoration: none;
@@ -287,7 +288,7 @@ body {
 .product-card__image--secondary {
     position: absolute;
     top: 0;
-    left: -20;
+    left: 0;
     opacity: 0;
 }
 
@@ -315,12 +316,9 @@ body {
 .product-card__favorite svg {
     width: 24px;
     height: 24px;
-    transition: fill 0.2s;
     transition: 0.2s;
     margin-right: 2px;
 }
-
-
 
 .product-card__badge {
     font-family: 'Kinetika';
@@ -344,8 +342,6 @@ body {
     margin-right: 1px;
 }
 
-
-
 /* Заголовок товара */
 .product-card__title {
     font-size: 16px;
@@ -354,7 +350,7 @@ body {
     color: #000;
     line-height: 1.4;
     font-family: 'Kinetika', sans-serif;
-    padding: 0 10px;           /* отступы по бокам текста */
+    padding: 0 10px;
 }
 
 /* Блок цен */
@@ -378,15 +374,12 @@ body {
     text-decoration: line-through;
 }
 
-
 .product-card__installment {
     font-size: 14px;
     color: #666;
     margin-top: 4px;
     padding: 0 10px 10px;
 }
-
-
 .header__icon--favorite {
     position: relative;
     transition: transform 0.2s ease; /* плавность */
@@ -1638,4 +1631,60 @@ body {
     height: 200px;
     margin-top: 10px;
     border: 1px solid #eee;
+}
+
+
+
+
+
+
+/* Стили для валидации формы */
+.required {
+    color: #ff0000;
+    margin-left: 3px;
+}
+
+.field-error {
+    color: #ff0000;
+    font-size: 12px;
+    margin-top: 3px;
+    display: none;
+}
+
+.field-error.show {
+    display: block;
+}
+
+.cart-field input.error,
+.cart-field select.error {
+    border-color: #ff0000;
+    background-color: #fff8f8;
+}
+
+.cart-field input.valid {
+    border-color: #00aa00;
+}
+
+/* Стили для подсказок DaData */
+.suggestions-suggestions {
+    border: 1px solid #000;
+    background: #fff;
+    font-family: 'Kinetika', sans-serif;
+}
+
+.suggestions-suggestion {
+    padding: 8px 12px;
+    border-bottom: 1px solid #eee;
+}
+
+.suggestions-suggestion:hover {
+    background: #f0f0f0;
+}
+
+/* Карта */
+.map-footer {
+    font-size: 10px;
+    color: #999;
+    text-align: right;
+    margin-top: 5px;
 }

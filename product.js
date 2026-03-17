@@ -50,6 +50,133 @@ if (product) {
 
 let currentImageIndex = 0;
 
+
+// Объект для хранения состояния полей
+const formState = {
+    city: { value: '', valid: false },
+    pickup: { value: '', valid: false },
+    fullName: { value: '', valid: false },
+    phone: { value: '', valid: false },
+    email: { value: '', valid: false },
+    postalCode: { value: '', valid: false },
+    address: { value: '', valid: false }
+};
+
+// Функции валидации
+function validateFullName(name) {
+    const regex = /^[А-ЯЁ][а-яё]+ [А-ЯЁ][а-яё]+( [А-ЯЁ][а-яё]+)?$/;
+    return regex.test(name.trim());
+}
+
+function validatePhone(phone) {
+    const digits = phone.replace(/\D/g, '');
+    return digits.length === 11;
+}
+
+function validateEmail(email) {
+    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return regex.test(email);
+}
+
+function validatePostalCode(code) {
+    const digits = code.replace(/\D/g, '');
+    return digits.length === 6;
+}
+
+function validateAddress(address) {
+    return address.trim().length > 5;
+}
+
+function validateCity(city) {
+    return city.trim().length > 2;
+}
+
+// Показать/скрыть ошибки
+function showFieldError(fieldId, isValid) {
+    const field = document.getElementById(fieldId);
+    const errorDiv = document.getElementById(fieldId + 'Error');
+    
+    if (!field || !errorDiv) return;
+    
+    if (!isValid) {
+        field.classList.add('error');
+        field.classList.remove('valid');
+        errorDiv.classList.add('show');
+    } else {
+        field.classList.remove('error');
+        field.classList.add('valid');
+        errorDiv.classList.remove('show');
+    }
+}
+
+// Проверка всех обязательных полей
+function validateForm() {
+    let isValid = true;
+    
+    // Проверка города
+    const cityValid = formState.city.valid;
+    showFieldError('cityInput', cityValid);
+    if (!cityValid) isValid = false;
+    
+    // Проверка пункта выдачи (если контейнер видим)
+    const pickupContainer = document.getElementById('pickupPointContainer');
+    if (pickupContainer && pickupContainer.style.display !== 'none') {
+        const pickupValid = formState.pickup.valid;
+        showFieldError('pickupPoint', pickupValid);
+        if (!pickupValid) isValid = false;
+    }
+    
+    // Проверка ФИО
+    const nameValid = formState.fullName.valid;
+    showFieldError('fullName', nameValid);
+    if (!nameValid) isValid = false;
+    
+    // Проверка телефона
+    const phoneValid = formState.phone.valid;
+    showFieldError('phone', phoneValid);
+    if (!phoneValid) isValid = false;
+    
+    // Проверка email
+    const emailValid = formState.email.valid;
+    showFieldError('email', emailValid);
+    if (!emailValid) isValid = false;
+    
+    // Проверка индекса
+    const postalValid = formState.postalCode.valid;
+    showFieldError('postalCode', postalValid);
+    if (!postalValid) isValid = false;
+    
+    // Проверка адреса
+    const addressValid = formState.address.valid;
+    showFieldError('address', addressValid);
+    if (!addressValid) isValid = false;
+    
+    return isValid;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 /* ========== РЕНДЕР СТРАНИЦЫ ТОВАРА ========== */
 function renderProductPage() {
     if (!product) {
@@ -228,9 +355,18 @@ function renderCartContent() {
 
         <div class="cart-section">
             <h3>Доставка</h3>
-            <div class="cart-delivery-options">
+            
+            <!-- Город с подсказками -->
+            <div class="cart-field">
+                <label>Город <span class="required">*</span></label>
+                <input type="text" class="city-input" id="cityInput" placeholder="Введите город" autocomplete="off">
+                <div class="field-error" id="cityError">Обязательное поле</div>
+            </div>
+            
+            <!-- Выбор службы доставки -->
+            <div class="cart-delivery-options" id="deliveryOptions" style="display: none;">
                 <label class="cart-delivery-option">
-                    <input type="radio" name="delivery" value="cdek" checked>
+                    <input type="radio" name="delivery" value="cdek" disabled>
                     <div class="cart-delivery-option__info">
                         <div class="cart-delivery-option__title">СДЭК</div>
                         <div class="cart-delivery-option__details">от 7 дней</div>
@@ -238,7 +374,7 @@ function renderCartContent() {
                     <div class="cart-delivery-option__price">от 385 ₽</div>
                 </label>
                 <label class="cart-delivery-option">
-                    <input type="radio" name="delivery" value="pochta">
+                    <input type="radio" name="delivery" value="pochta" disabled>
                     <div class="cart-delivery-option__info">
                         <div class="cart-delivery-option__title">Почта России</div>
                         <div class="cart-delivery-option__details">от 7 дней</div>
@@ -246,47 +382,62 @@ function renderCartContent() {
                     <div class="cart-delivery-option__price">550 ₽</div>
                 </label>
             </div>
-            <div class="cart-pickup-point">
-                <label>Пункт получения</label>
-                <select>
-                    <option>Выберите пункт получения</option>
-                    <option>г. Новосибирск, ул. Ленина, 1</option>
-                    <option>г. Новосибирск, ул. Дзержинского, 15</option>
+            
+            <!-- Пункт выдачи (появляется после выбора города) -->
+            <div class="cart-pickup-point" id="pickupPointContainer" style="display: none;">
+                <label>Пункт получения <span class="required">*</span></label>
+                <select id="pickupPoint" class="pickup-select">
+                    <option value="">Выберите пункт получения</option>
                 </select>
+                <div class="field-error" id="pickupError">Пожалуйста, выберите адрес из предложенных вариантов</div>
                 <div id="cartMap" style="width: 100%; height: 200px; margin-top: 10px;"></div>
+                <div class="map-footer">© Яндекс Условия использования</div>
             </div>
         </div>
 
         <div class="cart-section">
             <h3>Личные данные</h3>
+            
             <div class="cart-field">
-                <label>ФИО</label>
-                <input type="text" placeholder="Иванов Иван Иванович">
+                <label>ФИО <span class="required">*</span></label>
+                <input type="text" id="fullName" placeholder="Иванов Иван Иванович" class="required-field">
+                <div class="field-error" id="fullNameError">Обязательное поле</div>
             </div>
+            
             <div class="cart-field">
-                <label>Номер телефона</label>
-                <input type="tel" placeholder="+7 (000) 000-00-00">
+                <label>Номер телефона <span class="required">*</span></label>
+                <input type="tel" id="phone" placeholder="+7 (000) 000-00-00" class="required-field phone-mask">
+                <div class="field-error" id="phoneError">Обязательное поле</div>
             </div>
+            
             <div class="cart-field">
-                <label>Почта</label>
-                <input type="email" placeholder="Email">
+                <label>Почта <span class="required">*</span></label>
+                <input type="email" id="email" placeholder="Email" class="required-field">
+                <div class="field-error" id="emailError">Обязательное поле</div>
             </div>
+            
             <div class="cart-field">
-                <label>Индекс</label>
-                <input type="text" placeholder="Почтовый индекс">
+                <label>Индекс <span class="required">*</span></label>
+                <input type="text" id="postalCode" placeholder="Почтовый индекс" class="required-field postal-mask">
+                <div class="field-error" id="postalCodeError">Обязательное поле</div>
             </div>
+            
             <div class="cart-field">
-                <label>Адрес</label>
-                <input type="text" placeholder="Адрес проживания">
+                <label>Адрес <span class="required">*</span></label>
+                <input type="text" id="address" placeholder="Адрес проживания" class="required-field">
+                <div class="field-error" id="addressError">Обязательное поле</div>
             </div>
+            
             <div class="cart-field">
                 <label>Соц. сети для связи</label>
                 <input type="text" placeholder="Вставьте ссылку">
             </div>
+            
             <div class="cart-field">
                 <label>Промокод</label>
                 <input type="text" placeholder="Введите промокод">
             </div>
+            
             <div class="cart-field">
                 <label>Откуда о нас узнали?</label>
                 <input type="text" placeholder="Соц. сети, реклама, от друзей и т.д.">
@@ -338,56 +489,259 @@ function renderCartContent() {
         });
     });
 
-    // Инициализация карты
-    if (typeof ymaps !== 'undefined') {
-        // Уничтожаем предыдущую карту, если она была
+    // ===== ИНИЦИАЛИЗАЦИЯ ФОРМЫ =====
+    
+    // Инициализация маски телефона
+    if (typeof $.fn.mask !== 'undefined') {
+        $('#phone').mask('+7 (999) 999-99-99');
+    }
+
+    // Словарь для координат городов (для демо, в реальности нужно получать через геокодер)
+    const cityCoordinates = {
+        'москва': [55.7558, 37.6176],
+        'санкт-петербург': [59.9343, 30.3351],
+        'казань': [55.7887, 49.1221],
+        'новосибирск': [55.0302, 82.9204],
+        'екатеринбург': [56.8389, 60.6057],
+        'нижний новгород': [56.3269, 44.0075],
+        'самара': [53.1955, 50.1068],
+        'омск': [54.9924, 73.3686],
+        'ростов-на-дону': [47.2357, 39.7015],
+        'уфа': [54.7348, 55.9579]
+    };
+
+    // Инициализация DaData для города с вашим ключом
+    if (typeof $.fn.suggestions !== 'undefined') {
+        $('#cityInput').suggestions({
+            token: '0968f1751ac58bd038b590b9842328916bfc7165',
+            type: 'ADDRESS',
+            bounds: 'city',
+            onSelect: function(suggestion) {
+                const city = suggestion.value;
+                formState.city.value = city;
+                formState.city.valid = true;
+                showFieldError('cityInput', true);
+                
+                // Показываем варианты доставки
+                document.getElementById('deliveryOptions').style.display = 'flex';
+                
+                // Активируем радио-кнопки
+                document.querySelectorAll('input[name="delivery"]').forEach(radio => {
+                    radio.disabled = false;
+                });
+
+                // Центрируем карту на выбранном городе
+                setTimeout(() => {
+                    initMapForCity(city);
+                }, 500);
+            }
+        });
+
+        // Инициализация подсказок для адреса
+        $('#address').suggestions({
+            token: '0968f1751ac58bd038b590b9842328916bfc7165',
+            type: 'ADDRESS',
+            onSelect: function(suggestion) {
+                const address = suggestion.value;
+                formState.address.value = address;
+                formState.address.valid = true;
+                showFieldError('address', true);
+                
+                // Автоматически заполняем индекс если есть
+                if (suggestion.data.postal_code) {
+                    $('#postalCode').val(suggestion.data.postal_code);
+                    formState.postalCode.value = suggestion.data.postal_code;
+                    formState.postalCode.valid = true;
+                    showFieldError('postalCode', true);
+                }
+            }
+        });
+    }
+
+    // Функция инициализации карты для города
+    function initMapForCity(cityName) {
+        if (typeof ymaps === 'undefined') {
+            console.error('Яндекс Карты не загружены');
+            return;
+        }
+
+        // Уничтожаем предыдущую карту
         if (currentMap) {
             currentMap.destroy();
             currentMap = null;
-            mapInitialized = false;
+            currentPlacemark = null;
         }
 
+        // Приводим название города к нижнему регистру для поиска в словаре
+        const cityLower = cityName.toLowerCase();
+        
+        // Ищем координаты в словаре или используем координаты Москвы по умолчанию
+        let coords = cityCoordinates[cityLower] || [55.7558, 37.6176];
+
         ymaps.ready(() => {
-            const points = {
-                'г. Новосибирск, ул. Ленина, 1': [55.030, 82.920],
-                'г. Новосибирск, ул. Дзержинского, 15': [55.041, 82.944]
-            };
-
-            const selectElement = document.querySelector('.cart-pickup-point select');
-            if (!selectElement) return;
-
-            const initialPoint = selectElement.value;
-            const coords = points[initialPoint] || [55.030, 82.920];
-
             currentMap = new ymaps.Map('cartMap', {
                 center: coords,
-                zoom: 14
+                zoom: 10
             });
 
+            // Добавляем метку города
             currentPlacemark = new ymaps.Placemark(coords, {
-                hintContent: initialPoint,
-                balloonContent: initialPoint
+                hintContent: cityName,
+                balloonContent: cityName
+            }, {
+                preset: 'islands#dotIcon',
+                iconColor: '#000000'
             });
             currentMap.geoObjects.add(currentPlacemark);
-
-            selectElement.addEventListener('change', (e) => {
-                const newPoint = e.target.value;
-                const newCoords = points[newPoint];
-                if (newCoords && currentMap) {
-                    currentMap.setCenter(newCoords, 14);
-                    if (currentPlacemark) {
-                        currentPlacemark.geometry.setCoordinates(newCoords);
-                        currentPlacemark.properties.set({
-                            hintContent: newPoint,
-                            balloonContent: newPoint
-                        });
-                    }
-                }
-            });
-
-            mapInitialized = true;
         });
     }
+
+    // Слушатели для валидации полей в реальном времени
+    $('#fullName').on('input', function() {
+        const val = $(this).val();
+        const isValid = validateFullName(val);
+        formState.fullName = { value: val, valid: isValid };
+        showFieldError('fullName', isValid);
+    });
+
+    $('#phone').on('input', function() {
+        const val = $(this).val();
+        const isValid = validatePhone(val);
+        formState.phone = { value: val, valid: isValid };
+        showFieldError('phone', isValid);
+    });
+
+    $('#email').on('input', function() {
+        const val = $(this).val();
+        const isValid = validateEmail(val);
+        formState.email = { value: val, valid: isValid };
+        showFieldError('email', isValid);
+    });
+
+    $('#postalCode').on('input', function() {
+        const val = $(this).val();
+        const isValid = validatePostalCode(val);
+        formState.postalCode = { value: val, valid: isValid };
+        showFieldError('postalCode', isValid);
+    });
+
+    $('#address').on('input', function() {
+        const val = $(this).val();
+        const isValid = validateAddress(val);
+        formState.address = { value: val, valid: isValid };
+        showFieldError('address', isValid);
+    });
+
+    // Словарь пунктов выдачи с координатами
+    const pickupPoints = {
+        'msk1': { name: 'г. Москва, ул. Тверская, 1', coords: [55.7575, 37.6156] },
+        'msk2': { name: 'г. Москва, ул. Новый Арбат, 15', coords: [55.7523, 37.5971] },
+        'msk3': { name: 'г. Москва, Ленинградский пр-т, 36', coords: [55.7855, 37.5597] },
+        'spb1': { name: 'г. Санкт-Петербург, Невский пр-т, 28', coords: [59.9343, 30.3351] },
+        'spb2': { name: 'г. Санкт-Петербург, ул. Рубинштейна, 23', coords: [59.9288, 30.3475] },
+        'kzn1': { name: 'г. Казань, ул. Баумана, 15', coords: [55.7901, 49.1169] },
+        'nsk1': { name: 'г. Новосибирск, Красный пр-т, 82', coords: [55.0415, 82.9346] },
+        'ekb1': { name: 'г. Екатеринбург, пр. Ленина, 25', coords: [56.8389, 60.6057] }
+    };
+
+    // Обработка выбора пункта выдачи
+    $('#pickupPoint').on('change', function() {
+        const val = $(this).val();
+        const isValid = val !== '';
+        formState.pickup = { value: val, valid: isValid };
+        showFieldError('pickupPoint', isValid);
+        
+        // Обновление карты для выбранного пункта
+        if (currentMap && val && pickupPoints[val]) {
+            const point = pickupPoints[val];
+            currentMap.setCenter(point.coords, 15);
+            
+            // Обновляем метку
+            if (currentPlacemark) {
+                currentPlacemark.geometry.setCoordinates(point.coords);
+                currentPlacemark.properties.set({
+                    hintContent: point.name,
+                    balloonContent: point.name
+                });
+            } else {
+                currentPlacemark = new ymaps.Placemark(point.coords, {
+                    hintContent: point.name,
+                    balloonContent: point.name
+                }, {
+                    preset: 'islands#redDotIcon'
+                });
+                currentMap.geoObjects.add(currentPlacemark);
+            }
+        }
+    });
+
+    // Обработка выбора способа доставки
+    $('input[name="delivery"]').on('change', function() {
+        const deliveryType = $(this).val();
+        
+        // Для СДЭК показываем пункты выдачи
+        if (deliveryType === 'cdek') {
+            loadPickupPoints();
+        } else {
+            // Для Почты России скрываем пункты выдачи
+            document.getElementById('pickupPointContainer').style.display = 'none';
+        }
+    });
+
+    // Функция загрузки пунктов выдачи
+    function loadPickupPoints() {
+        const select = $('#pickupPoint');
+        select.empty();
+        select.append('<option value="">Выберите пункт получения</option>');
+        
+        // Добавляем пункты в зависимости от выбранного города
+        const cityInput = $('#cityInput').val().toLowerCase();
+        
+        setTimeout(() => {
+            if (cityInput.includes('москва') || cityInput.includes('moscow')) {
+                select.append('<option value="msk1">г. Москва, ул. Тверская, 1</option>');
+                select.append('<option value="msk2">г. Москва, ул. Новый Арбат, 15</option>');
+                select.append('<option value="msk3">г. Москва, Ленинградский пр-т, 36</option>');
+            } else if (cityInput.includes('петербург') || cityInput.includes('peter')) {
+                select.append('<option value="spb1">г. Санкт-Петербург, Невский пр-т, 28</option>');
+                select.append('<option value="spb2">г. Санкт-Петербург, ул. Рубинштейна, 23</option>');
+            } else if (cityInput.includes('казань')) {
+                select.append('<option value="kzn1">г. Казань, ул. Баумана, 15</option>');
+            } else if (cityInput.includes('новосибирск')) {
+                select.append('<option value="nsk1">г. Новосибирск, Красный пр-т, 82</option>');
+            } else if (cityInput.includes('екатеринбург')) {
+                select.append('<option value="ekb1">г. Екатеринбург, пр. Ленина, 25</option>');
+            } else {
+                // По умолчанию показываем все пункты
+                select.append('<option value="msk1">г. Москва, ул. Тверская, 1</option>');
+                select.append('<option value="msk2">г. Москва, ул. Новый Арбат, 15</option>');
+                select.append('<option value="msk3">г. Москва, Ленинградский пр-т, 36</option>');
+                select.append('<option value="spb1">г. Санкт-Петербург, Невский пр-т, 28</option>');
+                select.append('<option value="spb2">г. Санкт-Петербург, ул. Рубинштейна, 23</option>');
+            }
+            
+            document.getElementById('pickupPointContainer').style.display = 'block';
+        }, 300);
+    }
+
+    // Обработчик кнопки "Оформить заказ"
+    $('.cart-submit').off('click').on('click', function(e) {
+        e.preventDefault();
+        
+        if (validateForm()) {
+            // Здесь можно отправить данные
+            alert('Форма заполнена верно! Можно отправлять заказ.');
+            // closeCartModal();
+        } else {
+            // Прокрутка к первой ошибке
+            const firstError = $('.error').first();
+            if (firstError.length) {
+                $('.cart-modal__container').animate({
+                    scrollTop: firstError.offset().top - $('.cart-modal__container').offset().top + $('.cart-modal__container').scrollTop()
+                }, 300);
+            }
+        }
+    });
 
     // Закрытие по крестику и оверлею
     const closeBtn = document.querySelector('.cart-modal__close');
