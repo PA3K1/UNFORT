@@ -539,13 +539,7 @@ body {
     color: #ff4d4f;
 }
 
-.sticked-low {
-    display: block; /* явно указываем display, чтобы при возврате было понятно */
-    position: fixed;
-    left: 1566.5px;
-    top: 825px;
-    z-index: 9999;
-}
+
 
 /* ДЛЯ ПЕРЕХОДА МЕЖДУ ОТДЕЛАМИ */
 .pagination {
@@ -1792,36 +1786,4 @@ body {
     color: #999;
     background: #f9f9f9;
     border-radius: 8px;
-}
-
-/* Адаптив для коллекций */
-@media (max-width: 768px) {
-    .collections-nav__container {
-        gap: 20px;
-        padding: 15px;
-        overflow-x: auto;
-        justify-content: flex-start;
-    }
-    
-    .collections-nav__btn {
-        font-size: 14px;
-        white-space: nowrap;
-    }
-}
-
-@media (max-width: 450px) {
-    .collections-nav__container {
-        gap: 15px;
-        padding: 10px;
-    }
-    
-    .collections-nav__btn {
-        font-size: 12px;
-        padding: 6px 0;
-    }
-    
-    .collections-empty {
-        padding: 40px 15px;
-        font-size: 16px;
-    }
 }
