@@ -1,41 +1,26 @@
+// product.js — логика страницы товара
+
 let mapInitialized = false;
 let currentMap = null;
 let currentPlacemark = null;
 
+/* ========== ПЕРЕМЕННЫЕ ========== */
+let productContainer;
+let fullscreenModal, fullscreenImage, fullscreenClose, fullscreenPrev, fullscreenNext;
+let cartModal, cartOverlay, cartClose, cartContent;
 
-/* ========== ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ ========== */
-let favorites = JSON.parse(localStorage.getItem('favorites')) || [];
-let cart = JSON.parse(localStorage.getItem('cart')) || []; // можно сохранять, но пока не используем
-
-// Элементы
-const favoriteCount = document.querySelector('.header__favorite-count');
-const favoriteOverlay = document.getElementById('favoriteOverlay');
-const favoriteModal = document.getElementById('favoriteModal');
-const favoriteClose = document.querySelector('.favorite-modal__close');
-const favoriteItemsContainer = document.querySelector('.favorite-modal__items');
-const productContainer = document.querySelector('.product-page__container');
-const fullscreenModal = document.getElementById('fullscreenModal');
-const fullscreenImage = document.getElementById('fullscreenImage');
-const fullscreenClose = document.querySelector('.fullscreen-modal__close');
-const fullscreenPrev = document.querySelector('.fullscreen-modal__arrow--prev');
-const fullscreenNext = document.querySelector('.fullscreen-modal__arrow--next');
-
-// Элементы корзины
-const cartModal = document.getElementById('cartModal');
-const cartOverlay = document.getElementById('cartOverlay');
-const cartClose = document.querySelector('.cart-modal__close');
-const cartContent = document.getElementById('cartContent');
-
-// Объект для быстрого доступа к товарам по id
+// Объект для быстрого доступа к товарам (уже есть в common.js, но для локального использования)
 const productsMap = {};
-products.forEach(p => { productsMap[p.id] = p; });
+if (typeof products !== 'undefined') {
+    products.forEach(p => { productsMap[p.id] = p; });
+}
 
 /* ========== ПОЛУЧЕНИЕ ID ТОВАРА ИЗ URL ========== */
 const urlParams = new URLSearchParams(window.location.search);
 const productId = urlParams.get('id');
 const product = productsMap[productId];
 
-// Массив изображений для галереи (формируем минимум 9)
+// Массив изображений для галереи
 let productImages = [];
 if (product) {
     if (product.images && Array.isArray(product.images) && product.images.length > 0) {
@@ -50,8 +35,7 @@ if (product) {
 
 let currentImageIndex = 0;
 
-
-// Объект для хранения состояния полей
+// Объект для хранения состояния полей формы (корзина)
 const formState = {
     city: { value: '', valid: false },
     pickup: { value: '', valid: false },
@@ -62,41 +46,33 @@ const formState = {
     address: { value: '', valid: false }
 };
 
-// Функции валидации
+/* ========== ФУНКЦИИ ВАЛИДАЦИИ ========== */
 function validateFullName(name) {
     const regex = /^[А-ЯЁ][а-яё]+ [А-ЯЁ][а-яё]+( [А-ЯЁ][а-яё]+)?$/;
     return regex.test(name.trim());
 }
-
 function validatePhone(phone) {
     const digits = phone.replace(/\D/g, '');
     return digits.length === 11;
 }
-
 function validateEmail(email) {
     const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return regex.test(email);
 }
-
 function validatePostalCode(code) {
     const digits = code.replace(/\D/g, '');
     return digits.length === 6;
 }
-
 function validateAddress(address) {
     return address.trim().length > 5;
 }
-
 function validateCity(city) {
     return city.trim().length > 2;
 }
 
-
-// Проверка всех полей на валидность
 function validateAllFields() {
     const pickupContainer = document.getElementById('pickupPointContainer');
     const pickupValid = (pickupContainer && pickupContainer.style.display !== 'none') ? formState.pickup.valid : true;
-    
     return formState.city.valid &&
         formState.fullName.valid &&
         formState.phone.valid &&
@@ -106,47 +82,10 @@ function validateAllFields() {
         pickupValid;
 }
 
-function showSuccessScreen() {
-    // Меняем содержимое модального окна
-    const cartContainer = document.querySelector('.cart-modal__container');
-    if (cartContainer) cartContainer.style.width = '400px';
-    
-    const cartContent = document.getElementById('cartContent');
-    cartContent.innerHTML = `
-        <div class="cart-success">
-            <div class="cart-success__free-shipping">
-                Бесплатная доставка от 14 990 руб.
-            </div>
-            <div class="cart-success__message">
-                Спасибо! Заказ оформлен.<br>
-                Пожалуйста, подождите.<br>
-                Идет переход к оплате...
-            </div>
-        </div>
-    `;
-    
-    // Блокируем повторное нажатие
-    const submitBtn = document.querySelector('.cart-submit');
-    if (submitBtn) {
-        submitBtn.classList.add('processing');
-        submitBtn.disabled = true;
-    }
-    
-    // Открываем ссылку в новой вкладке и закрываем модалку через 1 секунду
-    setTimeout(() => {
-        window.open('https://pay.tbank.ru/lORxHESi', '_blank');
-        closeCartModal(); // закрываем модальное окно
-    }, 1000);
-}
-
-// Показать/скрыть ошибки
-// Показать/скрыть ошибки
 function showFieldError(fieldId, isValid) {
     const field = document.getElementById(fieldId);
     const errorDiv = document.getElementById(fieldId + 'Error');
-    
     if (!field || !errorDiv) return;
-    
     if (!isValid) {
         field.classList.add('error');
         field.classList.remove('valid');
@@ -155,8 +94,6 @@ function showFieldError(fieldId, isValid) {
         field.classList.remove('error');
         field.classList.add('valid');
         errorDiv.classList.remove('show');
-        
-        // Если все поля валидны, скрываем общее сообщение об ошибке
         if (validateAllFields()) {
             const errorMsg = document.querySelector('.cart-error-message');
             if (errorMsg) errorMsg.classList.remove('show');
@@ -164,73 +101,62 @@ function showFieldError(fieldId, isValid) {
     }
 }
 
-// Проверка всех обязательных полей
 function validateForm() {
     let isValid = true;
-    
-    // Проверка города
     const cityValid = formState.city.valid;
     showFieldError('cityInput', cityValid);
     if (!cityValid) isValid = false;
-    
-    // Проверка пункта выдачи (если контейнер видим)
+
     const pickupContainer = document.getElementById('pickupPointContainer');
     if (pickupContainer && pickupContainer.style.display !== 'none') {
         const pickupValid = formState.pickup.valid;
         showFieldError('pickupPoint', pickupValid);
         if (!pickupValid) isValid = false;
     }
-    
-    // Проверка ФИО
+
     const nameValid = formState.fullName.valid;
     showFieldError('fullName', nameValid);
     if (!nameValid) isValid = false;
-    
-    // Проверка телефона
+
     const phoneValid = formState.phone.valid;
     showFieldError('phone', phoneValid);
     if (!phoneValid) isValid = false;
-    
-    // Проверка email
+
     const emailValid = formState.email.valid;
     showFieldError('email', emailValid);
     if (!emailValid) isValid = false;
-    
-    // Проверка индекса
+
     const postalValid = formState.postalCode.valid;
     showFieldError('postalCode', postalValid);
     if (!postalValid) isValid = false;
-    
-    // Проверка адреса
+
     const addressValid = formState.address.valid;
     showFieldError('address', addressValid);
     if (!addressValid) isValid = false;
-    
+
     return isValid;
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+function showSuccessScreen() {
+    const cartContainer = document.querySelector('.cart-modal__container');
+    if (cartContainer) cartContainer.style.width = '400px';
+    const cartContent = document.getElementById('cartContent');
+    cartContent.innerHTML = `
+        <div class="cart-success">
+            <div class="cart-success__free-shipping">Бесплатная доставка от 14 990 руб.</div>
+            <div class="cart-success__message">Спасибо! Заказ оформлен.<br>Пожалуйста, подождите.<br>Идет переход к оплате...</div>
+        </div>
+    `;
+    const submitBtn = document.querySelector('.cart-submit');
+    if (submitBtn) {
+        submitBtn.classList.add('processing');
+        submitBtn.disabled = true;
+    }
+    setTimeout(() => {
+        window.open('https://pay.tbank.ru/lORxHESi', '_blank');
+        closeCartModal();
+    }, 1000);
+}
 
 /* ========== РЕНДЕР СТРАНИЦЫ ТОВАРА ========== */
 function renderProductPage() {
@@ -239,8 +165,7 @@ function renderProductPage() {
         return;
     }
 
-    const isFavorite = favorites.includes(product.id);
-    
+    const isFavorite = favorites.includes(product.id); // favorites из common.js
     const descriptionHTML = product.description 
         ? product.description.split('\n').map(p => `<p>${p}</p>`).join('')
         : `<p>Описание товара временно отсутствует.</p>`;
@@ -344,11 +269,10 @@ function renderProductPage() {
     if (favBtn) {
         favBtn.addEventListener('click', (e) => {
             e.preventDefault();
-            toggleFavorite(product.id, favBtn);
+            toggleFavorite(product.id, favBtn); // из common.js
         });
     }
 
-    // Кнопка добавления в корзину
     const cartBtn = document.querySelector('.product-detail__cart-btn');
     if (cartBtn) {
         cartBtn.addEventListener('click', (e) => {
@@ -382,7 +306,6 @@ function closeCartModal() {
 function renderCartContent() {
     if (!cartContent) return;
 
-    // Получаем выбранный размер (если есть активный)
     const activeSizeBtn = document.querySelector('.product-detail__size-btn.active');
     const selectedSize = activeSizeBtn ? activeSizeBtn.textContent : 'M';
 
@@ -411,14 +334,12 @@ function renderCartContent() {
         <div class="cart-section">
             <h3>Доставка</h3>
             
-            <!-- Город с подсказками -->
             <div class="cart-field">
                 <label>Город <span class="required">*</span></label>
                 <input type="text" class="city-input" id="cityInput" placeholder="Введите город" autocomplete="off">
                 <div class="field-error" id="cityError">Обязательное поле</div>
             </div>
             
-            <!-- Выбор службы доставки -->
             <div class="cart-delivery-options" id="deliveryOptions" style="display: none;">
                 <label class="cart-delivery-option">
                     <input type="radio" name="delivery" value="cdek" disabled>
@@ -438,7 +359,6 @@ function renderCartContent() {
                 </label>
             </div>
             
-            <!-- Пункт выдачи (появляется после выбора города) -->
             <div class="cart-pickup-point" id="pickupPointContainer" style="display: none;">
                 <label>Пункт получения <span class="required">*</span></label>
                 <select id="pickupPoint" class="pickup-select">
@@ -544,14 +464,11 @@ function renderCartContent() {
         });
     });
 
-    // ===== ИНИЦИАЛИЗАЦИЯ ФОРМЫ =====
-    
-    // Инициализация маски телефона
+    // ===== ИНИЦИАЛИЗАЦИЯ ФОРМЫ (DaData, карты) =====
     if (typeof $.fn.mask !== 'undefined') {
         $('#phone').mask('+7 (999) 999-99-99');
     }
 
-    // Словарь для координат городов (для демо, в реальности нужно получать через геокодер)
     const cityCoordinates = {
         'москва': [55.7558, 37.6176],
         'санкт-петербург': [59.9343, 30.3351],
@@ -565,7 +482,6 @@ function renderCartContent() {
         'уфа': [54.7348, 55.9579]
     };
 
-    // Инициализация DaData для города с вашим ключом
     if (typeof $.fn.suggestions !== 'undefined') {
         $('#cityInput').suggestions({
             token: '0968f1751ac58bd038b590b9842328916bfc7165',
@@ -577,22 +493,17 @@ function renderCartContent() {
                 formState.city.valid = true;
                 showFieldError('cityInput', true);
                 
-                // Показываем варианты доставки
                 document.getElementById('deliveryOptions').style.display = 'flex';
-                
-                // Активируем радио-кнопки
                 document.querySelectorAll('input[name="delivery"]').forEach(radio => {
                     radio.disabled = false;
                 });
 
-                // Центрируем карту на выбранном городе
                 setTimeout(() => {
                     initMapForCity(city);
                 }, 500);
             }
         });
 
-        // Инициализация подсказок для адреса
         $('#address').suggestions({
             token: '0968f1751ac58bd038b590b9842328916bfc7165',
             type: 'ADDRESS',
@@ -601,8 +512,6 @@ function renderCartContent() {
                 formState.address.value = address;
                 formState.address.valid = true;
                 showFieldError('address', true);
-                
-                // Автоматически заполняем индекс если есть
                 if (suggestion.data.postal_code) {
                     $('#postalCode').val(suggestion.data.postal_code);
                     formState.postalCode.value = suggestion.data.postal_code;
@@ -613,33 +522,23 @@ function renderCartContent() {
         });
     }
 
-    // Функция инициализации карты для города
     function initMapForCity(cityName) {
         if (typeof ymaps === 'undefined') {
             console.error('Яндекс Карты не загружены');
             return;
         }
-
-        // Уничтожаем предыдущую карту
         if (currentMap) {
             currentMap.destroy();
             currentMap = null;
             currentPlacemark = null;
         }
-
-        // Приводим название города к нижнему регистру для поиска в словаре
         const cityLower = cityName.toLowerCase();
-        
-        // Ищем координаты в словаре или используем координаты Москвы по умолчанию
         let coords = cityCoordinates[cityLower] || [55.7558, 37.6176];
-
         ymaps.ready(() => {
             currentMap = new ymaps.Map('cartMap', {
                 center: coords,
                 zoom: 10
             });
-
-            // Добавляем метку города
             currentPlacemark = new ymaps.Placemark(coords, {
                 hintContent: cityName,
                 balloonContent: cityName
@@ -651,35 +550,30 @@ function renderCartContent() {
         });
     }
 
-    // Слушатели для валидации полей в реальном времени
     $('#fullName').on('input', function() {
         const val = $(this).val();
         const isValid = validateFullName(val);
         formState.fullName = { value: val, valid: isValid };
         showFieldError('fullName', isValid);
     });
-
     $('#phone').on('input', function() {
         const val = $(this).val();
         const isValid = validatePhone(val);
         formState.phone = { value: val, valid: isValid };
         showFieldError('phone', isValid);
     });
-
     $('#email').on('input', function() {
         const val = $(this).val();
         const isValid = validateEmail(val);
         formState.email = { value: val, valid: isValid };
         showFieldError('email', isValid);
     });
-
     $('#postalCode').on('input', function() {
         const val = $(this).val();
         const isValid = validatePostalCode(val);
         formState.postalCode = { value: val, valid: isValid };
         showFieldError('postalCode', isValid);
     });
-
     $('#address').on('input', function() {
         const val = $(this).val();
         const isValid = validateAddress(val);
@@ -687,7 +581,6 @@ function renderCartContent() {
         showFieldError('address', isValid);
     });
 
-    // Словарь пунктов выдачи с координатами
     const pickupPoints = {
         'msk1': { name: 'г. Москва, ул. Тверская, 1', coords: [55.7575, 37.6156] },
         'msk2': { name: 'г. Москва, ул. Новый Арбат, 15', coords: [55.7523, 37.5971] },
@@ -699,19 +592,14 @@ function renderCartContent() {
         'ekb1': { name: 'г. Екатеринбург, пр. Ленина, 25', coords: [56.8389, 60.6057] }
     };
 
-    // Обработка выбора пункта выдачи
     $('#pickupPoint').on('change', function() {
         const val = $(this).val();
         const isValid = val !== '';
         formState.pickup = { value: val, valid: isValid };
         showFieldError('pickupPoint', isValid);
-        
-        // Обновление карты для выбранного пункта
         if (currentMap && val && pickupPoints[val]) {
             const point = pickupPoints[val];
             currentMap.setCenter(point.coords, 15);
-            
-            // Обновляем метку
             if (currentPlacemark) {
                 currentPlacemark.geometry.setCoordinates(point.coords);
                 currentPlacemark.properties.set({
@@ -730,28 +618,20 @@ function renderCartContent() {
         }
     });
 
-    // Обработка выбора способа доставки
     $('input[name="delivery"]').on('change', function() {
         const deliveryType = $(this).val();
-        
-        // Для СДЭК показываем пункты выдачи
         if (deliveryType === 'cdek') {
             loadPickupPoints();
         } else {
-            // Для Почты России скрываем пункты выдачи
             document.getElementById('pickupPointContainer').style.display = 'none';
         }
     });
 
-    // Функция загрузки пунктов выдачи
     function loadPickupPoints() {
         const select = $('#pickupPoint');
         select.empty();
         select.append('<option value="">Выберите пункт получения</option>');
-        
-        // Добавляем пункты в зависимости от выбранного города
         const cityInput = $('#cityInput').val().toLowerCase();
-        
         setTimeout(() => {
             if (cityInput.includes('москва') || cityInput.includes('moscow')) {
                 select.append('<option value="msk1">г. Москва, ул. Тверская, 1</option>');
@@ -767,54 +647,43 @@ function renderCartContent() {
             } else if (cityInput.includes('екатеринбург')) {
                 select.append('<option value="ekb1">г. Екатеринбург, пр. Ленина, 25</option>');
             } else {
-                // По умолчанию показываем все пункты
                 select.append('<option value="msk1">г. Москва, ул. Тверская, 1</option>');
                 select.append('<option value="msk2">г. Москва, ул. Новый Арбат, 15</option>');
                 select.append('<option value="msk3">г. Москва, Ленинградский пр-т, 36</option>');
                 select.append('<option value="spb1">г. Санкт-Петербург, Невский пр-т, 28</option>');
                 select.append('<option value="spb2">г. Санкт-Петербург, ул. Рубинштейна, 23</option>');
             }
-            
             document.getElementById('pickupPointContainer').style.display = 'block';
         }, 300);
     }
 
-// Обработчик кнопки "Оформить заказ"
-$('.cart-submit').off('click').on('click', function(e) {
-    e.preventDefault();
-    
-    // Проверяем, не был ли уже показан экран успеха
-    if ($(this).hasClass('processing')) return;
-    
-    if (validateForm()) {
-        // Все поля заполнены – показываем экран успеха
-        showSuccessScreen();
-    } else {
-        // Показываем сообщение об ошибке над кнопкой
-        let errorMsg = document.querySelector('.cart-error-message');
-        if (!errorMsg) {
-            errorMsg = document.createElement('div');
-            errorMsg.className = 'cart-error-message show';
-            errorMsg.textContent = 'Пожалуйста, заполните все обязательные поля';
-            const submitBtn = document.querySelector('.cart-submit');
-            if (submitBtn) submitBtn.parentNode.insertBefore(errorMsg, submitBtn);
+    $('.cart-submit').off('click').on('click', function(e) {
+        e.preventDefault();
+        if ($(this).hasClass('processing')) return;
+        if (validateForm()) {
+            showSuccessScreen();
         } else {
-            errorMsg.classList.add('show');
+            let errorMsg = document.querySelector('.cart-error-message');
+            if (!errorMsg) {
+                errorMsg = document.createElement('div');
+                errorMsg.className = 'cart-error-message show';
+                errorMsg.textContent = 'Пожалуйста, заполните все обязательные поля';
+                const submitBtn = document.querySelector('.cart-submit');
+                if (submitBtn) submitBtn.parentNode.insertBefore(errorMsg, submitBtn);
+            } else {
+                errorMsg.classList.add('show');
+            }
+            const firstError = document.querySelector('.error');
+            if (firstError) {
+                const container = document.querySelector('.cart-modal__container');
+                container.scrollTo({
+                    top: firstError.offsetTop - container.offsetTop,
+                    behavior: 'smooth'
+                });
+            }
         }
-        
-        // Прокрутка к первой ошибке
-        const firstError = document.querySelector('.error');
-        if (firstError) {
-            const container = document.querySelector('.cart-modal__container');
-            container.scrollTo({
-                top: firstError.offsetTop - container.offsetTop,
-                behavior: 'smooth'
-            });
-        }
-    }
-});
+    });
 
-    // Закрытие по крестику и оверлею
     const closeBtn = document.querySelector('.cart-modal__close');
     if (closeBtn) closeBtn.addEventListener('click', closeCartModal);
     if (cartOverlay) cartOverlay.addEventListener('click', closeCartModal);
@@ -895,7 +764,7 @@ function renderRelatedProducts() {
             const card = btn.closest('.product-card');
             const relatedProductId = card.dataset.productId;
             if (!relatedProductId) return;
-            toggleFavorite(relatedProductId, btn);
+            toggleFavorite(relatedProductId, btn); // из common.js
         });
     });
 }
@@ -961,159 +830,39 @@ function changeFullscreenImage(delta) {
     fullscreenImage.src = productImages[currentImageIndex];
 }
 
-if (fullscreenClose) {
-    fullscreenClose.addEventListener('click', closeFullscreen);
-}
-if (fullscreenPrev) {
-    fullscreenPrev.addEventListener('click', () => changeFullscreenImage(-1));
-}
-if (fullscreenNext) {
-    fullscreenNext.addEventListener('click', () => changeFullscreenImage(1));
-}
-fullscreenModal.addEventListener('click', (e) => {
-    if (e.target === fullscreenModal) closeFullscreen();
-});
-document.addEventListener('keydown', (e) => {
-    if (!fullscreenModal.classList.contains('active')) return;
-    if (e.key === 'Escape') closeFullscreen();
-    else if (e.key === 'ArrowLeft') changeFullscreenImage(-1);
-    else if (e.key === 'ArrowRight') changeFullscreenImage(1);
-});
+/* ========== ИНИЦИАЛИЗАЦИЯ ========== */
+function initProductPage() {
+    productContainer = document.querySelector('.product-page__container');
+    fullscreenModal = document.getElementById('fullscreenModal');
+    fullscreenImage = document.getElementById('fullscreenImage');
+    fullscreenClose = document.querySelector('.fullscreen-modal__close');
+    fullscreenPrev = document.querySelector('.fullscreen-modal__arrow--prev');
+    fullscreenNext = document.querySelector('.fullscreen-modal__arrow--next');
+    cartModal = document.getElementById('cartModal');
+    cartOverlay = document.getElementById('cartOverlay');
+    cartClose = document.querySelector('.cart-modal__close');
+    cartContent = document.getElementById('cartContent');
 
-/* ========== ИЗБРАННОЕ ========== */
-function updateFavoriteCount() {
-    if (favoriteCount) favoriteCount.textContent = favorites.length;
-    localStorage.setItem('favorites', JSON.stringify(favorites));
-}
-
-function toggleFavorite(productId, btn) {
-    const wasFavorite = favorites.includes(productId);
-    if (wasFavorite) {
-        favorites = favorites.filter(id => id !== productId);
-        if (btn) {
-            btn.classList.remove('active');
-            const svg = btn.querySelector('svg');
-            if (svg) svg.setAttribute('fill', 'none');
-        }
-    } else {
-        favorites.push(productId);
-        if (btn) {
-            btn.classList.add('active');
-            const svg = btn.querySelector('svg');
-            if (svg) svg.setAttribute('fill', '#ff4d4f');
-        }
-        showToast(`${product.title} добавлено в избранное`);
+    if (fullscreenClose) {
+        fullscreenClose.addEventListener('click', closeFullscreen);
     }
-    updateFavoriteCount();
-    animateHeart();
-    if (favoriteModal && favoriteModal.classList.contains('active')) {
-        renderFavoritesModal();
+    if (fullscreenPrev) {
+        fullscreenPrev.addEventListener('click', () => changeFullscreenImage(-1));
     }
-}
-
-function animateHeart() {
-    const heartIcon = document.querySelector('.header__icon--favorite');
-    if (!heartIcon) return;
-    heartIcon.classList.add('heart-pop');
-    setTimeout(() => heartIcon.classList.remove('heart-pop'), 500);
-}
-
-function showToast(message) {
-    const existingToast = document.querySelector('.toast');
-    if (existingToast) existingToast.remove();
-    const toast = document.createElement('div');
-    toast.className = 'toast';
-    toast.textContent = message;
-    document.body.appendChild(toast);
-    setTimeout(() => toast.classList.add('show'), 10);
-    setTimeout(() => {
-        toast.classList.remove('show');
-        setTimeout(() => toast.remove(), 300);
-    }, 3000);
-}
-
-/* ========== МОДАЛЬНОЕ ОКНО ИЗБРАННОГО ========== */
-function renderFavoritesModal() {
-    if (!favoriteItemsContainer) return;
-    favoriteItemsContainer.innerHTML = '';
-    if (favorites.length === 0) {
-        favoriteItemsContainer.innerHTML = '<p>В избранном пока нет товаров</p>';
-        return;
+    if (fullscreenNext) {
+        fullscreenNext.addEventListener('click', () => changeFullscreenImage(1));
     }
-    favorites.forEach(id => {
-        const item = productsMap[id];
-        if (!item) return;
-        const itemEl = document.createElement('div');
-        itemEl.className = 'favorite-item';
-        itemEl.innerHTML = `
-            <img src="${item.imgPrimary}" alt="${item.title}" class="favorite-item__image">
-            <div class="favorite-item__info">
-                <h4 class="favorite-item__title">${item.title}</h4>
-                <span class="favorite-item__size">One size</span>
-                <span class="favorite-item__price">${item.priceNew}</span>
-            </div>
-            <button class="favorite-item__remove" data-product-id="${id}">&times;</button>
-        `;
-        favoriteItemsContainer.appendChild(itemEl);
-    });
-    document.querySelectorAll('.favorite-item__remove').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            const productId = btn.dataset.productId;
-            toggleFavorite(productId);
-            const productFavBtn = document.querySelector(`.product-detail__favorite-btn[data-product-id="${productId}"]`);
-            if (productFavBtn && !favorites.includes(productId)) {
-                productFavBtn.classList.remove('active');
-                const svg = productFavBtn.querySelector('svg');
-                if (svg) svg.setAttribute('fill', 'none');
-            }
+    if (fullscreenModal) {
+        fullscreenModal.addEventListener('click', (e) => {
+            if (e.target === fullscreenModal) closeFullscreen();
         });
-    });
+    }
+
+    renderProductPage();
 }
 
-function openFavorites() {
-    renderFavoritesModal();
-    favoriteOverlay.classList.add('active');
-    favoriteModal.classList.add('active');
-    const sticked = document.querySelector('.sticked-low');
-    if (sticked) sticked.style.display = 'none';
-}
-
-function closeFavorites() {
-    favoriteOverlay.classList.remove('active');
-    favoriteModal.classList.remove('active');
-    const sticked = document.querySelector('.sticked-low');
-    if (sticked) sticked.style.display = '';
-}
-
-const favoriteIcon = document.querySelector('.header__icon--favorite');
-if (favoriteIcon) favoriteIcon.addEventListener('click', (e) => { e.preventDefault(); openFavorites(); });
-if (favoriteClose) favoriteClose.addEventListener('click', closeFavorites);
-if (favoriteOverlay) favoriteOverlay.addEventListener('click', closeFavorites);
-updateFavoriteCount();
-
-/* ========== КОД ДЛЯ БУРГЕРА ========== */
-const burger = document.querySelector('.header__burger');
-const menu = document.querySelector('.header__menu');
-const closeBtn = document.querySelector('.header__menu-close');
-const overlay = document.querySelector('.overlay');
-
-function closeMenu() {
-    menu.classList.remove('header__menu--open');
-    overlay.classList.remove('active');
-}
-
-if (burger) burger.addEventListener('click', () => { menu.classList.add('header__menu--open'); overlay.classList.add('active'); });
-if (closeBtn) closeBtn.addEventListener('click', closeMenu);
-document.querySelectorAll('.header__menu-link').forEach(link => link.addEventListener('click', closeMenu));
-document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && menu.classList.contains('header__menu--open')) closeMenu();
-    if (e.key === 'Escape' && favoriteModal && favoriteModal.classList.contains('active')) closeFavorites();
-    if (e.key === 'Escape' && cartModal && cartModal.classList.contains('active')) closeCartModal();
-});
-
-/* ========== ЗАПУСК ========== */
-renderProductPage();
+document.addEventListener('componentsLoaded', initProductPage);
+if (document.querySelector('.product-page')) initProductPage();
 
 // Preloader
 window.addEventListener('load', function() {

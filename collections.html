@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UNFORT - Коллекции</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="mobile.css">
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@100;400&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Прелоадер -->
+    <div class="preloader" id="preloader">
+        <div class="preloader__content">UNFORT</div>
+    </div>
+
+    <!-- Хедер (подгружается) -->
+    <div id="header-placeholder"></div>
+
+    <!-- Основной контент -->
+    <div class="main-content">
+        <!-- Три вкладки коллекций -->
+        <div class="collections-nav">
+            <div class="collections-nav__container">
+                <button class="collections-nav__btn active" data-collection="ss25">Unfort S/S 25</button>
+                <button class="collections-nav__btn" data-collection="exsample">Ex Sample</button>
+                <button class="collections-nav__btn" data-collection="rare">Unfort Rare</button>
+            </div>
+        </div>
+
+        <!-- Здесь будут товары коллекции -->
+        <section class="products">
+            <div class="products__grid" id="collections-grid">
+                <!-- По умолчанию показываем "Ничего не найдено" -->
+                <div class="collections-empty">Ничего не найдено</div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Футер (подгружается) -->
+    <div id="footer-placeholder"></div>
+
+    <!-- Модалки (подгружаются) -->
+    <div id="modals-placeholder"></div>
+
+    <!-- Скрипты -->
+<script src="data.js"></script>
+<script src="loadComponents.js"></script>
+<script src="common.js"></script>
+<script src="collections.js"></script>
+</body>
+</html>
