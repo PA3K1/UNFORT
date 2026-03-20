@@ -16,9 +16,9 @@ document.addEventListener('DOMContentLoaded', async function() {
     console.log('Загрузка компонентов...');
     
     await Promise.all([
-        loadComponent('header.html', 'header-placeholder'),
-        loadComponent('footer.html', 'footer-placeholder'),
-        loadComponent('modals.html', 'modals-placeholder')
+        loadComponent('components/header.html', 'header-placeholder'),
+        loadComponent('components/footer.html', 'footer-placeholder'),
+        loadComponent('components/modals.html', 'modals-placeholder')
     ]);
     
     console.log('Все компоненты загружены');
