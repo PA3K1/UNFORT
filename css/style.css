@@ -13,11 +13,11 @@ body {
 }
 
 .main-content {
-    flex: 1 0 auto; /* занимает всё доступное пространство */
+    flex: 1 0 auto; 
 }
 
 .footer {
-    flex-shrink: 0; /* не сжимается */
+    flex-shrink: 0; 
     width: 100%;
     background-color: #0f0f0f;
     margin: 0;
@@ -25,7 +25,6 @@ body {
 }
 
 /*СТИЛИ ДЛЯ HEADER*/
-
 .header {
     background: #fff;
     box-shadow: 0 2px 5px rgba(0,0,0,0.1);
@@ -125,7 +124,6 @@ body {
     transition: transform 0.3s ease-in-out;
 }
 
-
 .header__menu--open {
     transform: translateX(0);
 }
@@ -182,7 +180,6 @@ body {
 .category-tabs-wrapper{
     display: flex;
     justify-content: center;
-
 }
 
 .category-tabs {
@@ -230,11 +227,9 @@ body {
     z-index: 2;
 }
 
-
-
 /*СТИЛИ ДЛЯ КАРТОЧЕК С ТОВАРАМИ*/
 .products {
-    max-width: 100%; /* вместо 1200px */
+    max-width: 100%;
     margin: 0 auto;
     padding: 0 20px 0.1px;
 }
@@ -242,7 +237,7 @@ body {
 .products__grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: 20px; /* увеличил отступ между карточками */
+    gap: 20px;
 }
 
 /* Карточка товара */
@@ -252,7 +247,7 @@ body {
     border-radius: 0;
     transition: transform 0.2s;
     margin: 0;
-    border: none; /* убрали рамку */
+    border: none;
 }
 
 .product-card:hover {
@@ -274,7 +269,7 @@ body {
     width: 100%;
     height: auto;
     overflow: hidden;
-    aspect-ratio: 258 / 343;   /* сохраняем пропорции */
+    aspect-ratio: 258 / 343; 
 }
 
 .product-card__image {
@@ -382,11 +377,11 @@ body {
 }
 .header__icon--favorite {
     position: relative;
-    transition: transform 0.2s ease; /* плавность */
+    transition: transform 0.2s ease;
 }
 
 .header__icon--favorite.heart-pop {
-    transform: scale(1.15); /* увеличение примерно на 2px при исходном размере 30px */
+    transform: scale(1.15);
 }
 
 .header__favorite-count {
@@ -449,8 +444,8 @@ body {
 
 .favorite-modal__inner {
     padding: 40px;
-    width: 480px;        /* внутренняя ширина */
-    height: 880px;        /* внутренняя высота */
+    width: 480px; 
+    height: 880px;
     margin: 0 auto;
     display: flex;
     flex-direction: column;
@@ -604,7 +599,7 @@ body {
 /* ----- ОСНОВНЫЕ СТИЛИ ФУТЕРА ----- */
 .footer {
     font-family: 'Kinetika', sans-serif;
-    width: 100%; /* вместо 1920px */
+    width: 100%;
     background-color: #0f0f0f;
     margin: 0;
     padding: 0;
@@ -753,7 +748,7 @@ body {
     width: 100%;
     height: 100vh;
     background-color: rgba(0, 0, 0, 0.5);
-    z-index: 350; /* выше модалки избранного (у той 300) */
+    z-index: 350; 
     opacity: 0;
     visibility: hidden;
     transition: opacity 0.3s, visibility 0.3s;
@@ -788,7 +783,7 @@ body {
     position: relative;
     width: 100%;
     height: 100%;
-    padding: 0; /* внутренние отступы не нужны, так как картинка занимает верх */
+    padding: 0; 
     display: flex;
     flex-direction: column;
 }
@@ -808,21 +803,21 @@ body {
 
 .welcome-modal__image {
     width: 100%;
-    height: 280px; /* фиксированная высота картинки */
+    height: 280px; 
     overflow: hidden;
 }
 
 .welcome-modal__image img {
     width: 100%;
     height: 100%;
-    object-fit: cover; /* чтобы картинка заполнила область */
+    object-fit: cover; 
     display: block;
 }
 
 .welcome-modal__title {
     font-size: 20px;
-    line-height: 14px; /* по твоему описанию */
-    font-weight: 700; /* можно подобрать, но в стилях не указано, оставлю жирным */
+    line-height: 14px;
+    font-weight: 700; 
     text-align: center;
     margin: 25px 0 10px 0;
     padding: 0 20px;
@@ -840,8 +835,8 @@ body {
 }
 
 .welcome-modal__list {
-    list-style: disc; /* точки слева */
-    padding-left: 40px; /* отступ для точек */
+    list-style: disc;
+    padding-left: 40px; 
     margin: 0 20px 20px 20px;
     font-family: 'Manrope', sans-serif;
     font-size: 14px;
@@ -899,7 +894,7 @@ body {
     border-radius: 8px;
     box-shadow: 0 4px 12px rgba(0,0,0,0.3);
     opacity: 0;
-    transform: translateX(100%); /* изначально скрыт справа */
+    transform: translateX(100%);
     transition: transform 0.3s ease, opacity 0.3s ease;
     z-index: 1000;
     padding: 0 20px;
@@ -910,19 +905,6 @@ body {
     opacity: 1;
     transform: translateX(0); /* выезжает на место */
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 /* ========== СТРАНИЦА ТОВАРА ========== */
@@ -954,7 +936,7 @@ body {
 
 .product-detail__main-image {
     width: 100%;
-    max-width: 560px;      /* ограничиваем максимальную ширину, но позволяем сжиматься */
+    max-width: 560px;
     aspect-ratio: 1/1;
     overflow: hidden;
     cursor: pointer;
@@ -1034,7 +1016,7 @@ body {
     font-weight: 500;
     margin: 0;
     font-family: 'Kinetika', sans-serif;
-    font-style: italic;        /* из нижней части */
+    font-style: italic;
 }
 
 .product-detail__prices {
@@ -1095,7 +1077,7 @@ body {
     border-color: #000;
 }
 
-/* Кнопки действий */
+/* Кнопки действий ДЛЯ перелистывания */
 .product-detail__actions {
     display: flex;
     gap: 15px;
@@ -1170,7 +1152,7 @@ body {
     font-weight: 700;
 }
 
-/* ----- МОДАЛЬНОЕ ОКНО ПОЛНОЭКРАННОГО ПРОСМОТРА ----- */
+/* ----- МОДАЛЬНОЕ ОКНО ПОЛНОЭКРАННОГО ПРОСМОТРА КАРТИНКИ----- */
 .fullscreen-modal {
     display: none;
     position: fixed;
@@ -1246,9 +1228,6 @@ body {
     right: 20px;
 }
 
-
-
-
 /* ===== АККОРДЕОН ===== */
 .product-detail__accordion {
     margin: 30px 0;
@@ -1276,7 +1255,6 @@ body {
     align-items: center;
     transition: background 0.2s;
 }
-
 
 .accordion-header:hover {
     background: #f0f0f0;
@@ -1311,7 +1289,7 @@ body {
 
 .accordion-content.show {
     padding: 20px;
-    max-height: 500px; /* достаточно для контента */
+    max-height: 500px;
     opacity: 1;
 }
 
@@ -1326,7 +1304,7 @@ body {
     color: #333;
 }
 
-/* ===== СМОТРИТЕ ТАКЖЕ ===== */
+/* ===== СТИЛИ ДЛЯ СМОТРИТЕ ТАКЖЕ ===== */
 .product-detail__related {
     margin-top: 60px;
     padding-top: 40px;
@@ -1384,7 +1362,6 @@ body {
     50% { opacity: 0.5; }
     100% { opacity: 1; }
 }
-
 
 
 /* ===== МОДАЛЬНОЕ ОКНО КОРЗИНЫ ===== */
@@ -1564,6 +1541,7 @@ body {
     color: #000000;
         font-family: 'Kinetika';
 }
+
 .cart-field input,
 .cart-field select,
 .cart-field textarea {
@@ -1573,6 +1551,7 @@ body {
     font-size: 14px;
     box-sizing: border-box;
 }
+
 .cart-field textarea {
     resize: vertical;
     min-height: 60px;
@@ -1582,6 +1561,7 @@ body {
     flex-direction: column;
     gap: 10px;
 }
+
 .cart-payment-option {
     display: flex;
     align-items: center;
@@ -1677,9 +1657,6 @@ body {
     margin-top: 5px;
 }
 
-
-
-
 /* Сообщение об ошибке над кнопкой */
 .cart-error-message {
     color: #ff0000;
@@ -1716,9 +1693,7 @@ body {
     line-height: 1.5;
 }
 
-
 /* ===== СТРАНИЦА КОЛЛЕКЦИЙ ===== */
-
 /* Навигация по коллекциям */
 .collections-nav {
     width: 100%;
@@ -1770,7 +1745,6 @@ body {
     background-color: #000;
 }
 
-/* Пустое состояние коллекции */
 .collections-empty {
     grid-column: 1 / -1;
     text-align: center;
@@ -1781,16 +1755,6 @@ body {
     background: #f9f9f9;
     border-radius: 8px;
 }
-
-
-
-
-
-
-
-
-
-
 
 /* ===== СТРАНИЦА ДОСТАВКИ ===== */
 .delivery-page {
@@ -1805,11 +1769,6 @@ body {
     font-weight: 600;
     margin-bottom: 40px;
 }
-
-
-
-
-
 
 /* ===== СТРАНИЦА О НАС ===== */
 .about-page {
@@ -1839,21 +1798,6 @@ body {
 .about-page__text:last-child {
     margin-bottom: 0;
 }
-
-/* Адаптив */
-@media (max-width: 600px) {
-    .about-page__title {
-        font-size: 28px;
-    }
-    .about-page__content {
-        font-size: 16px;
-    }
-}
-
-
-
-
-
 
 /* ===== СТРАНИЦА ПОДДЕРЖКА ===== */
 .support-page {
@@ -1900,31 +1844,15 @@ body {
     display: inline-block;
 }
 
-/* Адаптив */
-@media (max-width: 600px) {
-    .support-page__title {
-        font-size: 28px;
-    }
-    .support-page__content {
-        font-size: 14px;
-    }
-    .support-page__content strong {
-        min-width: 120px;
-    }
-}
-
-
-
-
 /* Стили для страницы поддержки – метки бледные, значения чёрные */
 .support-page__content .label {
-    color: #999;          /* бледный серый */
-    font-weight: 400;     /* обычный, не жирный */
+    color: #999;
+    font-weight: 400; 
     margin-right: 5px;
 }
 
 .support-page__content .value {
-    color: #000;          /* чёрный */
+    color: #000;
     font-weight: 400;
 }
 
@@ -1938,7 +1866,7 @@ body {
 }
 
 .support-page__content {
-    max-width: 600px;        /* можно увеличить/уменьшить по желанию */
-    margin: 0 auto;          /* горизонтальное центрирование */
-    text-align: left;        /* текст остаётся слева, но блок центрирован */
+    max-width: 600px; 
+    margin: 0 auto;    
+    text-align: left;       
 }
