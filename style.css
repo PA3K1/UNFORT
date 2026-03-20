@@ -1914,3 +1914,31 @@ body {
 }
 
 
+
+
+/* Стили для страницы поддержки – метки бледные, значения чёрные */
+.support-page__content .label {
+    color: #999;          /* бледный серый */
+    font-weight: 400;     /* обычный, не жирный */
+    margin-right: 5px;
+}
+
+.support-page__content .value {
+    color: #000;          /* чёрный */
+    font-weight: 400;
+}
+
+.support-page__content .value a {
+    color: #000;
+    text-decoration: underline;
+}
+
+.support-page__content .value a:hover {
+    color: #666;
+}
+
+.support-page__content {
+    max-width: 600px;        /* можно увеличить/уменьшить по желанию */
+    margin: 0 auto;          /* горизонтальное центрирование */
+    text-align: left;        /* текст остаётся слева, но блок центрирован */
+}
