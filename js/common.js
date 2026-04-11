@@ -17,7 +17,6 @@ function initBurger() {
     const overlay = document.querySelector('.overlay');
 
     if (!burger || !menu || !closeBtn || !overlay) {
-        console.warn('Burger elements not found, retrying...');
         setTimeout(initBurger, 200);
         return;
     }
@@ -75,7 +74,6 @@ function toggleFavorite(productId, btn) {
     updateFavoriteCount();
     animateHeart();
 
-    // Если модалка открыта – обновить её
     const favModal = document.getElementById('favoriteModal');
     if (favModal && favModal.classList.contains('active')) {
         renderFavoritesModal();
@@ -138,7 +136,7 @@ function renderFavoritesModal() {
         btn.addEventListener('click', (e) => {
             e.stopPropagation();
             const productId = btn.dataset.productId;
-            // Найти кнопку на странице (если есть)
+
             const cardBtn = document.querySelector(`.product-card[data-product-id="${productId}"] .product-card__favorite`);
             toggleFavorite(productId, cardBtn);
         });

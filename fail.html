@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ошибка оплаты - UNFORT</title>
+    <style>
+        body {
+            font-family: 'Kinetika', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: #f5f5f5;
+            margin: 0;
+            padding: 20px;
+        }
+        .fail-card {
+            background: white;
+            border-radius: 20px;
+            padding: 50px;
+            text-align: center;
+            max-width: 500px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        }
+        .fail-card .cross {
+            font-size: 80px;
+            color: #ff4444;
+            margin-bottom: 20px;
+        }
+        .fail-card h1 {
+            font-size: 28px;
+            margin-bottom: 15px;
+        }
+        .fail-card p {
+            color: #666;
+            margin-bottom: 30px;
+        }
+        .btn {
+            display: inline-block;
+            padding: 12px 30px;
+            background: #000;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            transition: opacity 0.2s;
+        }
+        .btn:hover {
+            opacity: 0.8;
+        }
+    </style>
+</head>
+<body>
+    <div class="fail-card">
+        <div class="cross">✗</div>
+        <h1>Ошибка оплаты</h1>
+        <p>К сожалению, произошла ошибка при обработке платежа. Попробуйте ещё раз.</p>
+        <a href="javascript:history.back()" class="btn">Вернуться и попробовать снова</a>
+    </div>
+</body>
+</html>

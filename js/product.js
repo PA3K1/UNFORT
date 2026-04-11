@@ -9,7 +9,6 @@ let productContainer;
 let fullscreenModal, fullscreenImage, fullscreenClose, fullscreenPrev, fullscreenNext;
 let cartModal, cartOverlay, cartClose, cartContent;
 
-// Объект для быстрого доступа к товарам (уже есть в common.js, но для локального использования)
 const productsMap = {};
 if (typeof products !== 'undefined') {
     products.forEach(p => { productsMap[p.id] = p; });
@@ -20,7 +19,7 @@ const urlParams = new URLSearchParams(window.location.search);
 const productId = urlParams.get('id');
 const product = productsMap[productId];
 
-// Массив изображений для галереи
+
 let productImages = [];
 if (product) {
     if (product.images && Array.isArray(product.images) && product.images.length > 0) {
@@ -35,7 +34,6 @@ if (product) {
 
 let currentImageIndex = 0;
 
-// Объект для хранения состояния полей формы (корзина)
 const formState = {
     city: { value: '', valid: false },
     pickup: { value: '', valid: false },
@@ -48,24 +46,41 @@ const formState = {
 
 /* ========== ФУНКЦИИ ВАЛИДАЦИИ ========== */
 function validateFullName(name) {
+    if (!name.trim()) return false;
     const regex = /^[А-ЯЁ][а-яё]+ [А-ЯЁ][а-яё]+( [А-ЯЁ][а-яё]+)?$/;
     return regex.test(name.trim());
 }
+
 function validatePhone(phone) {
+    if (!phone || phone.trim() === '') return false;
     const digits = phone.replace(/\D/g, '');
-    return digits.length === 11;
+
+    if (digits.length === 11 && (digits[0] === '7' || digits[0] === '8')) {
+        return true;
+    }
+
+    if (digits.length === 10 && digits[0] === '9') {
+        return true;
+    }
+    return false;
 }
+
 function validateEmail(email) {
+    if (!email.trim()) return false;
     const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return regex.test(email);
 }
+
 function validatePostalCode(code) {
+    if (!code.trim()) return false;
     const digits = code.replace(/\D/g, '');
     return digits.length === 6;
 }
+
 function validateAddress(address) {
     return address.trim().length > 5;
 }
+
 function validateCity(city) {
     return city.trim().length > 2;
 }
@@ -138,24 +153,98 @@ function validateForm() {
 }
 
 function showSuccessScreen() {
-    const cartContainer = document.querySelector('.cart-modal__container');
-    if (cartContainer) cartContainer.style.width = '400px';
-    const cartContent = document.getElementById('cartContent');
-    cartContent.innerHTML = `
-        <div class="cart-success">
-            <div class="cart-success__free-shipping">Бесплатная доставка от 14 990 руб.</div>
-            <div class="cart-success__message">Спасибо! Заказ оформлен.<br>Пожалуйста, подождите.<br>Идет переход к оплате...</div>
-        </div>
-    `;
+    const totalElement = document.getElementById('cartTotal');
+    let totalAmount = 100;
+    
+    if (totalElement) {
+        let totalText = totalElement.textContent
+        totalAmount = totalText
+            .replace('Итоговая сумма:', '')
+            .replace('₽', '')
+            .replace(/\s/g, '')
+            .trim();
+        
+        if (isNaN(parseFloat(totalAmount))) {
+            totalAmount = 100;
+        }
+    }
+    
+
+    const email = document.getElementById('email')?.value || '';
+    let phone = document.getElementById('phone')?.value || '';
+    const fullName = document.getElementById('fullName')?.value || 'Клиент UNFORT';
+    
+    // НОРМАЛИЗАЦИЯ ТЕЛЕФОНА для ЮKassa
+    let normalizedPhone = '';
+    if (phone) {
+        let digits = phone.replace(/\D/g, '');
+        if (digits.length === 11 && (digits[0] === '7' || digits[0] === '8')) {
+            if (digits[0] === '8') {
+                digits = '7' + digits.substring(1);
+            }
+            normalizedPhone = '+' + digits;
+        } else if (digits.length === 10 && digits[0] === '9') {
+            normalizedPhone = '+7' + digits;
+        }
+    }
+    
+
+    const productTitle = product?.title || 'Товар UNFORT';
+    const selectedSize = document.querySelector('.product-detail__size-btn.active')?.textContent || 'M';
+    const quantity = document.getElementById('cartQuantity')?.textContent || '1';
+    
+    const orderDescription = `UNFORT: ${productTitle} (${selectedSize}) x${quantity} | Сумма: ${totalAmount} ₽`;
+    
+    const cartContentElement = document.getElementById('cartContent');
+    if (cartContentElement) {
+        cartContentElement.innerHTML = `
+            <div class="cart-success">
+                <div class="cart-success__free-shipping">
+                    Бесплатная доставка от 14 990 руб.
+                </div>
+                <div class="cart-success__message">
+                    🔄 Перенаправление на страницу оплаты...<br>
+                    Сумма к оплате: ${totalAmount} ₽<br>
+                    Пожалуйста, подождите.
+                </div>
+            </div>
+        `;
+    }
+    
+
     const submitBtn = document.querySelector('.cart-submit');
     if (submitBtn) {
         submitBtn.classList.add('processing');
         submitBtn.disabled = true;
     }
-    setTimeout(() => {
-        window.open('https://pay.tbank.ru/lORxHESi', '_blank');
-        closeCartModal();
-    }, 1000);
+    
+
+    if (window.UnfortPayment) {
+        window.UnfortPayment.createPayment(
+            totalAmount,
+            orderDescription,
+            email,
+            normalizedPhone
+        );
+    } else {
+        console.error('Payment module not loaded - проверьте подключение payment.js');
+
+        if (cartContentElement) {
+            cartContentElement.innerHTML = `
+                <div class="cart-success">
+                    <div class="cart-success__message" style="background: #ff4444;">
+                        ❌ Ошибка: платежный модуль не загружен<br>
+                        Пожалуйста, обновите страницу и попробуйте снова.
+                    </div>
+                </div>
+            `;
+        }
+
+        if (submitBtn) {
+            submitBtn.classList.remove('processing');
+            submitBtn.disabled = false;
+        }
+    }
 }
 
 /* ========== РЕНДЕР СТРАНИЦЫ ТОВАРА ========== */
@@ -165,7 +254,7 @@ function renderProductPage() {
         return;
     }
 
-    const isFavorite = favorites.includes(product.id); // favorites из common.js
+    const isFavorite = favorites.includes(product.id);
     const descriptionHTML = product.description 
         ? product.description.split('\n').map(p => `<p>${p}</p>`).join('')
         : `<p>Описание товара временно отсутствует.</p>`;
@@ -269,7 +358,7 @@ function renderProductPage() {
     if (favBtn) {
         favBtn.addEventListener('click', (e) => {
             e.preventDefault();
-            toggleFavorite(product.id, favBtn); // из common.js
+            toggleFavorite(product.id, favBtn);
         });
     }
 
@@ -424,11 +513,15 @@ function renderCartContent() {
             <div class="cart-payment-options">
                 <label class="cart-payment-option">
                     <input type="radio" name="payment" value="card" checked>
-                    Дебетовой картой (Visa, Mastercard и др.) через Tinkoff
+                    Банковской картой (Visa, Mastercard, МИР) через Тинькофф
                 </label>
                 <label class="cart-payment-option">
                     <input type="radio" name="payment" value="split">
-                    Долями от Тинькофф
+                    Долями от Тинькофф (4 платежа без переплат)
+                </label>
+                <label class="cart-payment-option">
+                    <input type="radio" name="payment" value="sbp">
+                    СБП (Система быстрых платежей)
                 </label>
             </div>
         </div>
@@ -438,7 +531,7 @@ function renderCartContent() {
         <button class="cart-submit">Оформить заказ</button>
     `;
 
-    // Обработчики количества
+
     const quantitySpan = document.getElementById('cartQuantity');
     const itemPriceSpan = document.getElementById('cartItemPrice');
     const totalSpan = document.getElementById('cartTotal');
@@ -467,6 +560,33 @@ function renderCartContent() {
     // ===== ИНИЦИАЛИЗАЦИЯ ФОРМЫ (DaData, карты) =====
     if (typeof $.fn.mask !== 'undefined') {
         $('#phone').mask('+7 (999) 999-99-99');
+
+        $('#phone').on('blur', function() {
+            let val = $(this).val();
+            let digits = val.replace(/\D/g, '');
+            
+            if (digits.length === 11 && (digits[0] === '7' || digits[0] === '8')) {
+                formState.phone.valid = true;
+                showFieldError('phone', true);
+                $(this).css('border-color', '#00aa00');
+            } else if (digits.length === 10 && digits[0] === '9') {
+                let corrected = '7' + digits;
+                let formatted = corrected.replace(/(\d{1})(\d{3})(\d{3})(\d{2})(\d{2})/, '+$1 ($2) $3-$4-$5');
+                $(this).val(formatted);
+                formState.phone.valid = true;
+                showFieldError('phone', true);
+                $(this).css('border-color', '#00aa00');
+            } else if (digits.length > 0) {
+                formState.phone.valid = false;
+                showFieldError('phone', false);
+                $(this).css('border-color', '#ff0000');
+            } else {
+                formState.phone.valid = false;
+                showFieldError('phone', false);
+                $(this).css('border-color', '#000000');
+            }
+            formState.phone.value = $(this).val();
+        });
     }
 
     const cityCoordinates = {
@@ -556,24 +676,36 @@ function renderCartContent() {
         formState.fullName = { value: val, valid: isValid };
         showFieldError('fullName', isValid);
     });
+
     $('#phone').on('input', function() {
         const val = $(this).val();
         const isValid = validatePhone(val);
         formState.phone = { value: val, valid: isValid };
         showFieldError('phone', isValid);
+        
+        if (val.length > 0 && !isValid) {
+            $(this).css('border-color', '#ff0000');
+        } else if (val.length > 0 && isValid) {
+            $(this).css('border-color', '#00aa00');
+        } else {
+            $(this).css('border-color', '#000000');
+        }
     });
+
     $('#email').on('input', function() {
         const val = $(this).val();
         const isValid = validateEmail(val);
         formState.email = { value: val, valid: isValid };
         showFieldError('email', isValid);
     });
+
     $('#postalCode').on('input', function() {
         const val = $(this).val();
         const isValid = validatePostalCode(val);
         formState.postalCode = { value: val, valid: isValid };
         showFieldError('postalCode', isValid);
     });
+
     $('#address').on('input', function() {
         const val = $(this).val();
         const isValid = validateAddress(val);
@@ -660,6 +792,34 @@ function renderCartContent() {
     $('.cart-submit').off('click').on('click', function(e) {
         e.preventDefault();
         if ($(this).hasClass('processing')) return;
+        
+
+        const phoneField = document.getElementById('phone');
+        if (phoneField) {
+            const phoneDigits = phoneField.value.replace(/\D/g, '');
+            if (phoneDigits.length === 0) {
+                showFieldError('phone', false);
+                formState.phone.valid = false;
+                phoneField.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                return;
+            }
+            if (phoneDigits.length === 10 && phoneDigits[0] === '9') {
+                const corrected = '7' + phoneDigits;
+                const formatted = corrected.replace(/(\d{1})(\d{3})(\d{3})(\d{2})(\d{2})/, '+$1 ($2) $3-$4-$5');
+                phoneField.value = formatted;
+                formState.phone.valid = true;
+                showFieldError('phone', true);
+            } else if (phoneDigits.length !== 11 || (phoneDigits[0] !== '7' && phoneDigits[0] !== '8')) {
+                showFieldError('phone', false);
+                formState.phone.valid = false;
+                phoneField.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                return;
+            } else {
+                formState.phone.valid = true;
+                showFieldError('phone', true);
+            }
+        }
+        
         if (validateForm()) {
             showSuccessScreen();
         } else {
@@ -764,7 +924,7 @@ function renderRelatedProducts() {
             const card = btn.closest('.product-card');
             const relatedProductId = card.dataset.productId;
             if (!relatedProductId) return;
-            toggleFavorite(relatedProductId, btn); // из common.js
+            toggleFavorite(relatedProductId, btn);
         });
     });
 }
