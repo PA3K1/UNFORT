@@ -1708,7 +1708,6 @@ body {
     object-fit: contain;
     transition: opacity var(--transition-normal) ease, transform 0.05s linear;
     cursor: zoom-in;
-    box-shadow: var(--shadow-card);
     border-radius: var(--border-radius-sm);
 }
 
@@ -1736,10 +1735,6 @@ body {
     z-index: 1001;
 }
 
-.fullscreen-modal__close:hover {
-    background: rgba(0, 0, 0, 0.1);
-    transform: scale(1.05);
-}
 
 .fullscreen-modal__arrow {
     position: absolute;
