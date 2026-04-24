@@ -9,6 +9,9 @@ let productContainer;
 let fullscreenModal, fullscreenImage, fullscreenClose, fullscreenPrev, fullscreenNext;
 let cartModal, cartOverlay, cartClose, cartContent;
 
+let currentZoomGlobal = 1;
+let translateXGlobal = 0, translateYGlobal = 0;
+
 const productsMap = {};
 if (typeof products !== 'undefined') {
     products.forEach(p => { productsMap[p.id] = p; });
@@ -18,7 +21,6 @@ if (typeof products !== 'undefined') {
 const urlParams = new URLSearchParams(window.location.search);
 const productId = urlParams.get('id');
 const product = productsMap[productId];
-
 
 let productImages = [];
 if (product) {
@@ -54,11 +56,9 @@ function validateFullName(name) {
 function validatePhone(phone) {
     if (!phone || phone.trim() === '') return false;
     const digits = phone.replace(/\D/g, '');
-
     if (digits.length === 11 && (digits[0] === '7' || digits[0] === '8')) {
         return true;
     }
-
     if (digits.length === 10 && digits[0] === '9') {
         return true;
     }
@@ -168,13 +168,11 @@ function showSuccessScreen() {
             totalAmount = 100;
         }
     }
-    
 
     const email = document.getElementById('email')?.value || '';
     let phone = document.getElementById('phone')?.value || '';
     const fullName = document.getElementById('fullName')?.value || 'Клиент UNFORT';
     
-    // НОРМАЛИЗАЦИЯ ТЕЛЕФОНА для ЮKassa
     let normalizedPhone = '';
     if (phone) {
         let digits = phone.replace(/\D/g, '');
@@ -187,7 +185,6 @@ function showSuccessScreen() {
             normalizedPhone = '+7' + digits;
         }
     }
-    
 
     const productTitle = product?.title || 'Товар UNFORT';
     const selectedSize = document.querySelector('.product-detail__size-btn.active')?.textContent || 'M';
@@ -210,14 +207,12 @@ function showSuccessScreen() {
             </div>
         `;
     }
-    
 
     const submitBtn = document.querySelector('.cart-submit');
     if (submitBtn) {
         submitBtn.classList.add('processing');
         submitBtn.disabled = true;
     }
-    
 
     if (window.UnfortPayment) {
         window.UnfortPayment.createPayment(
@@ -228,7 +223,6 @@ function showSuccessScreen() {
         );
     } else {
         console.error('Payment module not loaded - проверьте подключение payment.js');
-
         if (cartContentElement) {
             cartContentElement.innerHTML = `
                 <div class="cart-success">
@@ -239,7 +233,6 @@ function showSuccessScreen() {
                 </div>
             `;
         }
-
         if (submitBtn) {
             submitBtn.classList.remove('processing');
             submitBtn.disabled = false;
@@ -313,7 +306,6 @@ function renderProductPage() {
             </div>
         </div>
 
-        <!-- АККОРДЕОН -->
         <div class="product-detail__accordion">
             <div class="accordion-item">
                 <button class="accordion-header" data-target="characteristics">
@@ -344,7 +336,6 @@ function renderProductPage() {
             </div>
         </div>
 
-        <!-- СМОТРИТЕ ТАКЖЕ -->
         <div class="product-detail__related">
             <h2>СМОТРИТЕ ТАКЖЕ</h2>
             <div class="related-grid" id="relatedGrid"></div>
@@ -531,7 +522,6 @@ function renderCartContent() {
         <button class="cart-submit">Оформить заказ</button>
     `;
 
-
     const quantitySpan = document.getElementById('cartQuantity');
     const itemPriceSpan = document.getElementById('cartItemPrice');
     const totalSpan = document.getElementById('cartTotal');
@@ -557,10 +547,8 @@ function renderCartContent() {
         });
     });
 
-    // ===== ИНИЦИАЛИЗАЦИЯ ФОРМЫ (DaData, карты) =====
     if (typeof $.fn.mask !== 'undefined') {
         $('#phone').mask('+7 (999) 999-99-99');
-
         $('#phone').on('blur', function() {
             let val = $(this).val();
             let digits = val.replace(/\D/g, '');
@@ -792,7 +780,6 @@ function renderCartContent() {
     $('.cart-submit').off('click').on('click', function(e) {
         e.preventDefault();
         if ($(this).hasClass('processing')) return;
-        
 
         const phoneField = document.getElementById('phone');
         if (phoneField) {
@@ -892,13 +879,12 @@ function renderRelatedProducts() {
     const selected = shuffled.slice(0, 4);
 
     relatedGrid.innerHTML = selected.map(p => {
-        const isFav = favorites.includes(p.id);
         return `
             <article class="product-card" data-product-id="${p.id}">
                 <a href="product.html?id=${p.id}" class="product-card__link">
                     <div class="product-card__image-wrapper">
-                        <img src="${p.imgPrimary}" alt="${p.title}" class="product-card__image product-card__image--primary">
-                        <img src="${p.imgSecondary}" alt="${p.title} hover" class="product-card__image product-card__image--secondary">
+                        <img src="${p.imgPrimary}" alt="${p.title}" loading="lazy" class="product-card__image product-card__image--primary">
+                        <img src="${p.imgSecondary}" alt="${p.title} loading="lazy" hover" class="product-card__image product-card__image--secondary">
                         <button class="product-card__favorite" aria-label="Добавить в избранное">
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
@@ -947,15 +933,19 @@ function initGallery() {
         });
     }
 
-    prevBtn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        setMainImage(currentImageIndex - 1);
-    });
+    if (prevBtn) {
+        prevBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            setMainImage(currentImageIndex - 1);
+        });
+    }
 
-    nextBtn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        setMainImage(currentImageIndex + 1);
-    });
+    if (nextBtn) {
+        nextBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            setMainImage(currentImageIndex + 1);
+        });
+    }
 
     thumbnails.forEach(thumb => {
         thumb.addEventListener('click', () => {
@@ -964,22 +954,195 @@ function initGallery() {
         });
     });
 
-    mainImage.addEventListener('click', () => {
-        openFullscreen(currentImageIndex);
+    if (mainImage) {
+        mainImage.addEventListener('click', () => {
+            openFullscreen(currentImageIndex);
+        });
+    }
+}
+
+/* ========== ПОЛНОЭКРАННЫЙ РЕЖИМ С ЗУМОМ (ОДНА ВЕРСИЯ) ========== */
+let currentZoom = 1;
+let translateX = 0, translateY = 0;
+const ZOOM_LEVEL = 2.5;
+
+function openFullscreen(startIndex) {
+    currentImageIndex = startIndex;
+    currentZoom = 1;
+    translateX = 0;
+    translateY = 0;
+    
+    const content = fullscreenModal.querySelector('.fullscreen-modal__content');
+    if (!content) return;
+    
+    content.innerHTML = `
+        <div class="fullscreen-modal__zoom-container" style="position: relative; width: 100%; height: 100%; overflow: hidden; display: flex; align-items: center; justify-content: center;">
+            <img src="${productImages[currentImageIndex]}" alt="" loading="lazy" class="fullscreen-modal__image" id="fullscreenImage" style="max-width: 100%; max-height: 100%; object-fit: contain; transition: opacity 0.3s ease, transform 0.05s linear; cursor: zoom-in;">
+        </div>
+        <button class="fullscreen-modal__close">&times;</button>
+        <button class="fullscreen-modal__arrow fullscreen-modal__arrow--prev">←</button>
+        <button class="fullscreen-modal__arrow fullscreen-modal__arrow--next">→</button>
+        <div class="fullscreen-modal__counter" id="fullscreenCounter">${currentImageIndex + 1} / ${productImages.length}</div>
+    `;
+    
+    fullscreenImage = document.getElementById('fullscreenImage');
+    fullscreenClose = document.querySelector('.fullscreen-modal__close');
+    fullscreenPrev = document.querySelector('.fullscreen-modal__arrow--prev');
+    fullscreenNext = document.querySelector('.fullscreen-modal__arrow--next');
+    
+    if (fullscreenClose) fullscreenClose.addEventListener('click', closeFullscreen);
+    if (fullscreenPrev) fullscreenPrev.addEventListener('click', () => changeFullscreenImage(-1));
+    if (fullscreenNext) fullscreenNext.addEventListener('click', () => changeFullscreenImage(1));
+    
+    initZoomFeature();
+    
+    fullscreenModal.classList.add('active');
+    document.body.style.overflow = 'hidden';
+}
+
+function initZoomFeature() {
+    if (!fullscreenImage) return;
+    
+    const isMobile = window.innerWidth <= 768;
+    const sensitivity = isMobile ? 2.5 : 1.8;
+    
+    function applyTransform() {
+        if (currentZoom === 1) {
+            fullscreenImage.style.transform = 'none';
+            fullscreenImage.style.cursor = 'zoom-in';
+        } else {
+            fullscreenImage.style.transform = `scale(${currentZoom}) translate(${translateX}px, ${translateY}px)`;
+            fullscreenImage.style.cursor = 'move';
+        }
+    }
+    
+    function updatePositionFromCoords(x, y) {
+        let normX = Math.max(0, Math.min(1, x));
+        let normY = Math.max(0, Math.min(1, y));
+        
+        const moveFactor = sensitivity * 1.5;
+        translateX = -(normX - 0.5) * 120 * (currentZoom - 1) / currentZoom * moveFactor;
+        translateY = -(normY - 0.5) * 120 * (currentZoom - 1) / currentZoom * moveFactor;
+        
+        const maxTranslate = isMobile ? 120 : 80;
+        translateX = Math.max(-maxTranslate, Math.min(maxTranslate, translateX));
+        translateY = Math.max(-maxTranslate, Math.min(maxTranslate, translateY));
+        
+        applyTransform();
+    }
+    
+    fullscreenImage.addEventListener('mousemove', (e) => {
+        if (currentZoom === 1) return;
+        const rect = fullscreenImage.getBoundingClientRect();
+        let x = (e.clientX - rect.left) / rect.width;
+        let y = (e.clientY - rect.top) / rect.height;
+        updatePositionFromCoords(x, y);
+    });
+    
+    fullscreenImage.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (currentZoom === 1) {
+            currentZoom = ZOOM_LEVEL;
+            const rect = fullscreenImage.getBoundingClientRect();
+            let x = (e.clientX - rect.left) / rect.width;
+            let y = (e.clientY - rect.top) / rect.height;
+            updatePositionFromCoords(x, y);
+        } else {
+            currentZoom = 1;
+            translateX = 0;
+            translateY = 0;
+            applyTransform();
+        }
+    });
+    
+    fullscreenImage.addEventListener('touchmove', (e) => {
+        if (currentZoom === 1) return;
+        e.preventDefault();
+        const touch = e.touches[0];
+        const rect = fullscreenImage.getBoundingClientRect();
+        let x = (touch.clientX - rect.left) / rect.width;
+        let y = (touch.clientY - rect.top) / rect.height;
+        updatePositionFromCoords(x, y);
+    });
+    
+    fullscreenImage.addEventListener('touchstart', (e) => {
+        if (currentZoom === 1) {
+            e.preventDefault();
+            currentZoom = ZOOM_LEVEL;
+            const touch = e.touches[0];
+            const rect = fullscreenImage.getBoundingClientRect();
+            let x = (touch.clientX - rect.left) / rect.width;
+            let y = (touch.clientY - rect.top) / rect.height;
+            updatePositionFromCoords(x, y);
+        }
+    });
+    
+    fullscreenImage.addEventListener('dblclick', (e) => {
+        e.stopPropagation();
+        if (currentZoom === 1) {
+            currentZoom = ZOOM_LEVEL;
+            const rect = fullscreenImage.getBoundingClientRect();
+            let x = (e.clientX - rect.left) / rect.width;
+            let y = (e.clientY - rect.top) / rect.height;
+            updatePositionFromCoords(x, y);
+        } else {
+            currentZoom = 1;
+            translateX = 0;
+            translateY = 0;
+            applyTransform();
+        }
+    });
+    
+    fullscreenImage.addEventListener('wheel', (e) => {
+        e.preventDefault();
+        const delta = e.deltaY > 0 ? -0.3 : 0.3;
+        let newZoom = currentZoom + delta;
+        newZoom = Math.max(1, Math.min(ZOOM_LEVEL, newZoom));
+        
+        if (newZoom !== currentZoom) {
+            const rect = fullscreenImage.getBoundingClientRect();
+            let x = (e.clientX - rect.left) / rect.width;
+            let y = (e.clientY - rect.top) / rect.height;
+            currentZoom = newZoom;
+            if (currentZoom === 1) {
+                translateX = 0;
+                translateY = 0;
+            } else {
+                updatePositionFromCoords(x, y);
+            }
+            applyTransform();
+        }
     });
 }
 
-/* ========== ПОЛНОЭКРАННЫЙ РЕЖИМ ========== */
-function openFullscreen(startIndex) {
-    currentImageIndex = startIndex;
-    fullscreenImage.src = productImages[currentImageIndex];
-    fullscreenModal.classList.add('active');
-    document.body.style.overflow = 'hidden';
+function updateFullscreenImage() {
+    if (!fullscreenImage) return;
+    
+    fullscreenImage.style.opacity = '0';
+    
+    setTimeout(() => {
+        fullscreenImage.src = productImages[currentImageIndex];
+        fullscreenImage.style.opacity = '1';
+        
+        currentZoom = 1;
+        translateX = 0;
+        translateY = 0;
+        fullscreenImage.style.transform = 'none';
+        fullscreenImage.style.cursor = 'zoom-in';
+        
+        const counter = document.getElementById('fullscreenCounter');
+        if (counter) {
+            counter.textContent = `${currentImageIndex + 1} / ${productImages.length}`;
+        }
+    }, 150);
 }
 
 function closeFullscreen() {
     fullscreenModal.classList.remove('active');
     document.body.style.overflow = '';
+    currentZoom = 1;
+    translateX = 0;
+    translateY = 0;
 }
 
 function changeFullscreenImage(delta) {
@@ -987,44 +1150,53 @@ function changeFullscreenImage(delta) {
     if (newIndex < 0) newIndex = productImages.length - 1;
     if (newIndex >= productImages.length) newIndex = 0;
     currentImageIndex = newIndex;
-    fullscreenImage.src = productImages[currentImageIndex];
+    updateFullscreenImage();
+}
+
+function initSwipeSupport() {
+    let touchStartX = 0;
+    let touchStartTime = 0;
+    
+    const modal = document.getElementById('fullscreenModal');
+    if (!modal) return;
+    
+    modal.addEventListener('touchstart', (e) => {
+        if (currentZoom !== 1) return;
+        touchStartX = e.changedTouches[0].screenX;
+        touchStartTime = Date.now();
+    });
+    
+    modal.addEventListener('touchend', (e) => {
+        if (currentZoom !== 1) return;
+        const touchEndX = e.changedTouches[0].screenX;
+        const swipeDistance = touchEndX - touchStartX;
+        const swipeTime = Date.now() - touchStartTime;
+        
+        if (Math.abs(swipeDistance) > 50 && swipeTime < 300) {
+            if (swipeDistance > 0) {
+                changeFullscreenImage(-1);
+            } else {
+                changeFullscreenImage(1);
+            }
+        }
+    });
 }
 
 /* ========== ИНИЦИАЛИЗАЦИЯ ========== */
 function initProductPage() {
     productContainer = document.querySelector('.product-page__container');
     fullscreenModal = document.getElementById('fullscreenModal');
-    fullscreenImage = document.getElementById('fullscreenImage');
-    fullscreenClose = document.querySelector('.fullscreen-modal__close');
-    fullscreenPrev = document.querySelector('.fullscreen-modal__arrow--prev');
-    fullscreenNext = document.querySelector('.fullscreen-modal__arrow--next');
     cartModal = document.getElementById('cartModal');
     cartOverlay = document.getElementById('cartOverlay');
-    cartClose = document.querySelector('.cart-modal__close');
     cartContent = document.getElementById('cartContent');
-
-    if (fullscreenClose) {
-        fullscreenClose.addEventListener('click', closeFullscreen);
-    }
-    if (fullscreenPrev) {
-        fullscreenPrev.addEventListener('click', () => changeFullscreenImage(-1));
-    }
-    if (fullscreenNext) {
-        fullscreenNext.addEventListener('click', () => changeFullscreenImage(1));
-    }
-    if (fullscreenModal) {
-        fullscreenModal.addEventListener('click', (e) => {
-            if (e.target === fullscreenModal) closeFullscreen();
-        });
-    }
-
+    
     renderProductPage();
+    initSwipeSupport();
 }
 
 document.addEventListener('componentsLoaded', initProductPage);
 if (document.querySelector('.product-page')) initProductPage();
 
-// Preloader
 window.addEventListener('load', function() {
     const preloader = document.getElementById('preloader');
     if (preloader) {
